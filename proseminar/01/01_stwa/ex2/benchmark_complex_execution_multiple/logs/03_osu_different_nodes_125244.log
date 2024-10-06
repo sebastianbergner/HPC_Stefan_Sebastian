@@ -1,0 +1,76 @@
+mpiexec --display-map ../osu-micro-benchmarks-5.8/mpi/pt2pt/osu_latency
+ Data for JOB [36103,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n001	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [36103,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [36103,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       1.69
+1                       1.66
+2                       1.65
+4                       1.64
+8                       1.65
+16                      1.64
+32                      1.64
+64                      1.78
+128                     2.46
+256                     2.61
+512                     2.89
+1024                    3.44
+2048                    4.48
+4096                    6.59
+8192                    8.46
+16384                  11.11
+32768                  16.21
+65536                  26.27
+131072                 45.90
+262144                 83.92
+524288                161.34
+1048576               315.65
+2097152               624.54
+4194304              1243.23
+
+mpiexec --display-map ../osu-micro-benchmarks-5.8/mpi/pt2pt/osu_bw
+ Data for JOB [36149,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n001	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [36149,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [36149,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       3.43
+2                       7.09
+4                      14.10
+8                      27.75
+16                     55.40
+32                    113.63
+64                    209.69
+128                   300.78
+256                   568.15
+512                  1081.71
+1024                 1808.32
+2048                 2715.36
+4096                 2946.30
+8192                 3132.84
+16384                3191.84
+32768                3242.72
+65536                3267.64
+131072               3282.20
+262144               3285.60
+524288               3293.05
+1048576              3294.36
+2097152              3395.77
+4194304              3396.42

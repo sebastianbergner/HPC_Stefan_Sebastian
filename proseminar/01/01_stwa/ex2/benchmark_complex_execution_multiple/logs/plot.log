@@ -1,0 +1,13 @@
+Loading python-3.11.5-anaconda-2023.10
+jobs/plot.py logs/01_osu_different_cores_of_same_socket.log logs/02_osu_different_sockets_of_same_node.log logs/03_osu_different_nodes.log
+/home/cb76/cb761048/hpc_24/01/ex2/benchmark_complex_execution_multiple/jobs/plot.py:134: UserWarning: You passed a edgecolor/edgecolors ('black') for an unfilled marker ('x').  Matplotlib is ignoring the edgecolor in favor of the facecolor.  This behavior may change in the future.
+  plt.scatter(latency_df['Size'], latency_df['Value_mean'], c=latency_df['Value_std'], cmap=cmap,
+/home/cb76/cb761048/hpc_24/01/ex2/benchmark_complex_execution_multiple/jobs/plot.py:147: MatplotlibDeprecationWarning: Unable to determine Axes to steal space for Colorbar. Using gca(), but will raise in the future. Either provide the *cax* argument to use as the Axes for the Colorbar, provide the *ax* argument to steal space from it, or add *mappable* to an Axes.
+  plt.colorbar(plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min_latency_std, vmax=max_latency_std)),
+/home/cb76/cb761048/hpc_24/01/ex2/benchmark_complex_execution_multiple/jobs/plot.py:165: UserWarning: You passed a edgecolor/edgecolors ('black') for an unfilled marker ('x').  Matplotlib is ignoring the edgecolor in favor of the facecolor.  This behavior may change in the future.
+  plt.scatter(bandwidth_df['Size'], bandwidth_df['Value_mean'], c=bandwidth_df['Value_std'], cmap=cmap,
+/home/cb76/cb761048/hpc_24/01/ex2/benchmark_complex_execution_multiple/jobs/plot.py:177: MatplotlibDeprecationWarning: Unable to determine Axes to steal space for Colorbar. Using gca(), but will raise in the future. Either provide the *cax* argument to use as the Axes for the Colorbar, provide the *ax* argument to steal space from it, or add *mappable* to an Axes.
+  plt.colorbar(plt.cm.ScalarMappable(cmap=cmap, norm=plt.Normalize(vmin=min_bandwidth_std, vmax=max_bandwidth_std)),
+CSV files for each iteration saved in: csv_per_iterations/
+Aggregated CSV files with mean and std saved in: csv_aggregated/
+Combined plots saved in: plots/

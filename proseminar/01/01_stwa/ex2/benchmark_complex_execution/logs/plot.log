@@ -1,0 +1,6 @@
+Loading python-3.11.5-anaconda-2023.10
+jobs/plot.py logs/01_osu_different_cores_of_same_socket.log logs/02_osu_different_sockets_of_same_node.log logs/03_osu_different_nodes.log
+Plots saved: 
+plots/latency_plot_all_cases.png
+plots/bandwidth_plot_all_cases.png
+CSV files saved in: csv/

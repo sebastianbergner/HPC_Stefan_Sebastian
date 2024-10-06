@@ -1,0 +1,72 @@
+mpiexec --display-map -bind-to core --map-by core ../osu-micro-benchmarks-5.8/mpi/pt2pt/osu_latency
+ Data for JOB [6281,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n004	Num slots: 2	Max slots: 0	Num procs: 2
+ 	Process OMPI jobid: [6281,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+ 	Process OMPI jobid: [6281,1] App: 0 Process rank: 1 Bound: socket 0[core 1[hwt 0-1]]:[../BB/../../../..][../../../../../..]
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       0.16
+1                       0.16
+2                       0.16
+4                       0.16
+8                       0.16
+16                      0.16
+32                      0.20
+64                      0.21
+128                     0.32
+256                     0.35
+512                     0.37
+1024                    0.46
+2048                    0.60
+4096                    0.93
+8192                    1.59
+16384                   2.91
+32768                   4.78
+65536                   8.21
+131072                 16.80
+262144                 24.29
+524288                 47.65
+1048576                91.14
+2097152               181.65
+4194304               739.75
+
+mpiexec --display-map -bind-to core --map-by core ../osu-micro-benchmarks-5.8/mpi/pt2pt/osu_bw
+ Data for JOB [6301,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n004	Num slots: 2	Max slots: 0	Num procs: 2
+ 	Process OMPI jobid: [6301,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+ 	Process OMPI jobid: [6301,1] App: 0 Process rank: 1 Bound: socket 0[core 1[hwt 0-1]]:[../BB/../../../..][../../../../../..]
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       9.40
+2                      18.78
+4                      37.71
+8                      73.51
+16                    151.45
+32                    292.15
+64                    597.30
+128                   740.36
+256                  1337.48
+512                  2318.61
+1024                 3971.29
+2048                 6151.07
+4096                 8550.82
+8192                10634.56
+16384                6531.85
+32768                9290.99
+65536               11692.11
+131072              12520.65
+262144              11286.33
+524288              11152.50
+1048576             11513.14
+2097152             11768.97
+4194304             11331.54
