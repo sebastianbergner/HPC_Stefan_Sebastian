@@ -1,0 +1,375 @@
+1
+ Data for JOB [24987,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [24987,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [24987,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       1.68
+1                       1.65
+2                       1.70
+4                       1.64
+8                       1.65
+16                      1.64
+32                      1.64
+64                      1.79
+128                     2.46
+256                     2.61
+512                     2.89
+1024                    3.45
+2048                    4.48
+4096                    6.59
+8192                    8.46
+16384                  11.13
+32768                  16.23
+65536                  26.33
+131072                 45.96
+262144                 84.66
+524288                161.32
+1048576               315.72
+2097152               624.51
+4194304              1243.24
+2
+ Data for JOB [25016,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [25016,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [25016,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       1.69
+1                       1.67
+2                       1.64
+4                       1.64
+8                       1.64
+16                      1.64
+32                      1.65
+64                      1.78
+128                     2.45
+256                     2.60
+512                     2.88
+1024                    3.44
+2048                    4.48
+4096                    6.59
+8192                    8.45
+16384                  11.12
+32768                  16.25
+65536                  26.33
+131072                 45.95
+262144                 84.74
+524288                161.25
+1048576               315.77
+2097152               624.49
+4194304              1243.21
+3
+ Data for JOB [24619,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [24619,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [24619,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       1.69
+1                       1.66
+2                       1.66
+4                       1.65
+8                       1.65
+16                      1.64
+32                      1.64
+64                      1.78
+128                     2.47
+256                     2.61
+512                     2.88
+1024                    3.44
+2048                    4.48
+4096                    6.59
+8192                    8.47
+16384                  11.12
+32768                  16.23
+65536                  26.32
+131072                 45.98
+262144                 84.66
+524288                161.32
+1048576               315.69
+2097152               624.44
+4194304              1243.06
+4
+ Data for JOB [28563,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28563,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28563,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       1.70
+1                       1.68
+2                       1.68
+4                       1.66
+8                       1.66
+16                      1.67
+32                      1.67
+64                      1.80
+128                     2.46
+256                     2.62
+512                     2.91
+1024                    3.46
+2048                    4.50
+4096                    6.61
+8192                    8.50
+16384                  11.13
+32768                  16.29
+65536                  26.41
+131072                 46.15
+262144                 83.89
+524288                161.24
+1048576               315.70
+2097152               624.57
+4194304              1243.37
+5
+ Data for JOB [28193,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28193,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28193,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       1.69
+1                       1.67
+2                       1.65
+4                       1.63
+8                       1.64
+16                      1.64
+32                      1.64
+64                      1.78
+128                     2.46
+256                     2.63
+512                     2.89
+1024                    3.45
+2048                    4.50
+4096                    6.60
+8192                    8.47
+16384                  11.14
+32768                  16.24
+65536                  26.34
+131072                 45.96
+262144                 83.97
+524288                161.25
+1048576               315.66
+2097152               624.59
+4194304              1243.30
+1
+ Data for JOB [28210,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28210,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28210,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       3.45
+2                       6.98
+4                      14.14
+8                      28.23
+16                     56.75
+32                    114.17
+64                    209.69
+128                   298.60
+256                   561.41
+512                  1074.84
+1024                 1723.61
+2048                 2552.63
+4096                 2951.09
+8192                 3129.97
+16384                3208.22
+32768                3246.96
+65536                3269.67
+131072               3282.42
+262144               3286.96
+524288               3294.01
+1048576              3295.47
+2097152              3395.61
+4194304              3396.40
+2
+ Data for JOB [28378,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28378,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28378,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       3.40
+2                       6.90
+4                      13.90
+8                      27.93
+16                     56.08
+32                    112.86
+64                    207.69
+128                   302.07
+256                   564.20
+512                  1089.55
+1024                 1651.71
+2048                 2700.42
+4096                 2940.03
+8192                 3132.21
+16384                3207.64
+32768                3246.11
+65536                3265.33
+131072               3281.59
+262144               3288.31
+524288               3293.72
+1048576              3295.84
+2097152              3395.65
+4194304              3396.36
+3
+ Data for JOB [28391,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28391,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28391,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       3.45
+2                       6.93
+4                      14.01
+8                      28.04
+16                     54.83
+32                    113.84
+64                    209.03
+128                   295.88
+256                   555.47
+512                  1089.86
+1024                 1800.94
+2048                 2712.61
+4096                 2945.75
+8192                 3122.87
+16384                3205.23
+32768                3246.29
+65536                3268.73
+131072               3281.38
+262144               3286.61
+524288               3293.14
+1048576              3294.78
+2097152              3395.52
+4194304              3396.33
+4
+ Data for JOB [28400,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28400,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28400,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       3.40
+2                       7.04
+4                      14.03
+8                      28.26
+16                     55.78
+32                    113.50
+64                    208.57
+128                   303.97
+256                   571.35
+512                  1084.89
+1024                 1814.87
+2048                 2711.68
+4096                 2940.48
+8192                 3130.94
+16384                3201.46
+32768                3244.39
+65536                3269.15
+131072               3282.89
+262144               3287.92
+524288               3294.15
+1048576              3295.01
+2097152              3395.58
+4194304              3396.33
+5
+ Data for JOB [28289,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n002	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28289,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+
+ Data for node: n003	Num slots: 1	Max slots: 0	Num procs: 1
+ 	Process OMPI jobid: [28289,1] App: 0 Process rank: 1 Bound: N/A
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       3.45
+2                       6.99
+4                      13.84
+8                      28.15
+16                     56.55
+32                    113.88
+64                    208.04
+128                   299.07
+256                   557.88
+512                  1086.79
+1024                 1785.61
+2048                 2711.42
+4096                 2947.95
+8192                 3128.11
+16384                3208.09
+32768                3241.61
+65536                3270.01
+131072               3280.65
+262144               3287.68
+524288               3293.20
+1048576              3294.47
+2097152              3395.63
+4194304              3396.35
