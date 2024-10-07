@@ -1,0 +1,4 @@
+python3 plot.py output_osu.log
+Plots saved: 
+plots/latency_plot.png
+plots/bandwidth_plot.png

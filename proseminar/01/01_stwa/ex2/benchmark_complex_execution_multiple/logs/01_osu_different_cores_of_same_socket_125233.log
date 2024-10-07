@@ -1,0 +1,72 @@
+mpiexec --display-map -bind-to core --map-by core ../osu-micro-benchmarks-5.8/mpi/pt2pt/osu_latency
+ Data for JOB [63818,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n003	Num slots: 2	Max slots: 0	Num procs: 2
+ 	Process OMPI jobid: [63818,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+ 	Process OMPI jobid: [63818,1] App: 0 Process rank: 1 Bound: socket 0[core 1[hwt 0-1]]:[../BB/../../../..][../../../../../..]
+
+ =============================================================
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                       0.16
+1                       0.16
+2                       0.16
+4                       0.16
+8                       0.16
+16                      0.16
+32                      0.21
+64                      0.21
+128                     0.33
+256                     0.35
+512                     0.38
+1024                    0.46
+2048                    0.61
+4096                    0.92
+8192                    1.59
+16384                   2.88
+32768                   4.69
+65536                   8.36
+131072                 16.29
+262144                 25.02
+524288                 49.34
+1048576                94.52
+2097152               186.90
+4194304               759.54
+
+mpiexec --display-map -bind-to core --map-by core ../osu-micro-benchmarks-5.8/mpi/pt2pt/osu_bw
+ Data for JOB [59099,1] offset 0 Total slots allocated 2
+
+ ========================   JOB MAP   ========================
+
+ Data for node: n003	Num slots: 2	Max slots: 0	Num procs: 2
+ 	Process OMPI jobid: [59099,1] App: 0 Process rank: 0 Bound: socket 0[core 0[hwt 0-1]]:[BB/../../../../..][../../../../../..]
+ 	Process OMPI jobid: [59099,1] App: 0 Process rank: 1 Bound: socket 0[core 1[hwt 0-1]]:[../BB/../../../..][../../../../../..]
+
+ =============================================================
+# OSU MPI Bandwidth Test v5.8
+# Size      Bandwidth (MB/s)
+1                       9.44
+2                      18.54
+4                      37.67
+8                      76.01
+16                    153.25
+32                    292.44
+64                    594.37
+128                   733.91
+256                  1368.74
+512                  2416.86
+1024                 3887.20
+2048                 5995.04
+4096                 8515.58
+8192                10578.95
+16384                6695.37
+32768                9194.54
+65536               11235.19
+131072              11547.92
+262144              11037.69
+524288              10847.62
+1048576             11311.59
+2097152             11658.27
+4194304             10883.17
