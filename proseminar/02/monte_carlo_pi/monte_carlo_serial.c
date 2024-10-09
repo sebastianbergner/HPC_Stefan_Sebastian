@@ -10,8 +10,8 @@ void timigs_to_csv(char* filename, unsigned problemsize, double time) {
 	int set_header = 0;
 	if(access(filename, F_OK) != 0) set_header = 1;
 	fpt = fopen(filename, "a+");
-	if(set_header) fprintf(fpt, "Problem size,Time\n");
-	fprintf(fpt, "%u,%.9f\n", problemsize, time);
+	if(set_header) fprintf(fpt, "Type,Problem size,Time\n");
+	fprintf(fpt, "%s,%u,%.9f\n", "serial", problemsize, time);
 	fclose(fpt);
 }
 
@@ -38,6 +38,6 @@ int main(int argc, char* argv[]) {
 	clock_t end = clock();
 	double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
 	printf("took %f seconds\n", time_taken);
-	timigs_to_csv("./measurements_serial.csv", N, time_taken);
+	timigs_to_csv("./measurements.csv", N, time_taken);
 	return 0;
 }
