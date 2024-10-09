@@ -17,7 +17,7 @@ void timigs_to_csv(char* filename, unsigned problemsize, double time) {
 
 double mc_pi(unsigned int S) {
 	int in_count = 0;
-	for(int i = 0; i < S; ++i) {
+	for(unsigned i = 0; i < S; ++i) {
 		const double x = rand() / (double)RAND_MAX;
 		const double y = rand() / (double)RAND_MAX;
 		if(x * x + y * y <= 1.f) {
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
 	printf("pi approx with %i points: %f\n", N, mc_pi(N));
 	clock_t end = clock();
 	double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-	printf("took %f seconds", time_taken);
-	timigs_to_csv('./measurements_serial.csv', N, time_taken);
+	printf("took %f seconds\n", time_taken);
+	timigs_to_csv("./measurements_serial.csv", N, time_taken);
 	return 0;
 }

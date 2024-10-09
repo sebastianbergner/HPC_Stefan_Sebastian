@@ -1,0 +1,82 @@
+\documentclass[UTF-8]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{inputenc}
+\usepackage{geometry}
+\usepackage{pgfplots} 
+\usepackage{listings}
+\usepackage{enumerate}
+\usepackage{lipsum}  
+\usepackage{color}
+\usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.9,0.9,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+
+\title{High Performance Computing Proseminar 2024 \\
+    \large Assignment 2} %exchange for assignment number
+
+\author{Stefan Wagner \& Sebastian Bergner}
+\begin{document}
+    
+    \maketitle
+    
+    \section*{Exercise 1}
+    This exercise consists in writing a parallel application to speed up the computation of $\pi$.
+    
+    There are many ways of approximating $\pi$, one being a well-known Monte Carlo method: The ratio of the areas of a square and its incircle is $\pi/4$. Since the exact area of a circle cannot be computed (we don't know the value of $\pi$ yet), one can instead sample random points, check their distance from the center and compute the ratio of points inside the circle to all sampled points.
+    
+    \begin{itemize}
+    	\item Write a sequential application `pi\_seq` in C or C++ that computes $\pi$ for a given number of samples (command line argument). Test your application for various, large sample sizes to verify the correctness of your implementation.
+    	\item Consider a parallelization strategy using MPI. Which communication pattern(s) would you choose and why?
+    	\item Implement your chosen parallelization strategy as a second application `pi\_mpi`. Run it with varying numbers of ranks and sample sizes and verify its correctness by comparing the output to `pi\_seq`.
+    	\item Discuss the effects and implications of your parallelization.
+    	\item Insert the measured wall time for $10^9$ samples for the sequential implementation and on 96 cores for MPI into the  \href{https://docs.google.com/spreadsheets/d/1p6d9F12EtykmI2-7MnHkg0U15UAtaCvWz8Ip92ZEsWo}{comparison spreadsheet}
+    \end{itemize}
+    
+    
+    
+    \section*{Exercise 2}
+	This exercise consists in parallelizing an application simulating the propagation of heat.
+	
+	A large class of scientific applications are so-called stencil applications. These simulate time-dependent physical processes such as the propagation of heat or pressure in a given medium. The core of the simulation operates on a grid and updates each cell with information from its neighbor cells.
+	
+	
+	\begin{itemize}
+		\item A sequential implementation of a 1-D heat stencil is available in heat\_stencil\_1D\_seq.c. Read the code and make sure you understand what happens. See the Wikipedia article on \href{https://en.wikipedia.org/wiki/Stencil_code}{Stencil Codes} for more information.
+		\item Consider a parallelization strategy using MPI. Which communication pattern(s) would you choose and why? Are there additional changes required in the code beyond calling MPI functions? If so, elaborate!
+		\item Implement your chosen parallelization strategy as a second application `heat\_stencil\_1D\_mpi`. Run it with varying numbers of ranks and problem sizes and verify its correctness by comparing the output to `heat\_stencil\_1D\_seq`.
+		\item Discuss the effects and implications of your parallelization.
+		\item Insert the measured wall time for N=6144 and 96 cores into the  \href{https://docs.google.com/spreadsheets/d/1p6d9F12EtykmI2-7MnHkg0U15UAtaCvWz8Ip92ZEsWo}{comparison spreadsheet}
+	\end{itemize}
+
+
+\end{document}

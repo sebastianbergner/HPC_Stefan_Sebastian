@@ -1,4 +1,4 @@
-CFLAGS = -std=gnu11
+CFLAGS = -std=gnu11 -O2 -Werror -Wall -Wpedantic -Wextra
 
 .PHONY: all
 all: monte_carlo_serial monte_carlo_parallel
