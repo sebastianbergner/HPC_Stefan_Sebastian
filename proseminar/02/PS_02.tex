@@ -56,9 +56,36 @@
     
     \begin{itemize}
     	\item Write a sequential application `pi\_seq` in C or C++ that computes $\pi$ for a given number of samples (command line argument). Test your application for various, large sample sizes to verify the correctness of your implementation.
+    	\\
+    	The main part of the monte carlo pi approximation is shown below. The code works as follows: generate S random points inside a squared area, if they lie inside the unit circle the length of the vector they build is $\le 1$ thus we can increase the counter. Otherwise we just ignore it. In the end we have to multipy by 4 to accomodate the fact that we only generated random numbers in the right upper quadrant (no negative numbers).
+    	\begin{lstlisting}[language=c]
+double mc_pi(unsigned int S) {
+	int in_count = 0;
+	for(unsigned i = 0; i < S; ++i) {
+		const double x = rand() / (double)RAND_MAX;
+		const double y = rand() / (double)RAND_MAX;
+		if(x * x + y * y <= 1.f) {
+			in_count++;
+		}
+	}
+	return 4.f * in_count / S;
+}\end{lstlisting}
+    	
+    	TODO table problem size
+    	
+    	
     	\item Consider a parallelization strategy using MPI. Which communication pattern(s) would you choose and why?
+    	\\
+    	As we actually don't have to accommodate relevant data that has to be distributed we can utilize the mpi reduce functionality. This should allow for least communication overhead. Each process gets its own share to work on the problem and initializes a random seed based on the rank it has. And after computing the elements inside the quarter circle we sum it up using reduce and then do the last step of the above function only in the master node (rank = 0).
+    	
     	\item Implement your chosen parallelization strategy as a second application `pi\_mpi`. Run it with varying numbers of ranks and sample sizes and verify its correctness by comparing the output to `pi\_seq`.
+    	
+    	TODO table with results
+    	
     	\item Discuss the effects and implications of your parallelization.
+    	
+    	TODO ask stefan? implications = speedup? communication? insert plot of speedup here
+    	
     	\item Insert the measured wall time for $10^9$ samples for the sequential implementation and on 96 cores for MPI into the  \href{https://docs.google.com/spreadsheets/d/1p6d9F12EtykmI2-7MnHkg0U15UAtaCvWz8Ip92ZEsWo}{comparison spreadsheet}
     \end{itemize}
     
