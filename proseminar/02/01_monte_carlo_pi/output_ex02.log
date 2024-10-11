@@ -1,0 +1,422 @@
+1
+pi approx with 1 points: 4.000000
+took 0.000042 seconds
+2
+pi approx with 1 points: 4.000000
+took 0.000040 seconds
+3
+pi approx with 1 points: 4.000000
+took 0.000037 seconds
+4
+pi approx with 1 points: 4.000000
+took 0.000037 seconds
+5
+pi approx with 1 points: 4.000000
+took 0.000040 seconds
+1
+inside local 0 inside global 0
+
+pi approx with 1 points: 0.000000
+took 0.091116 seconds
+2
+inside local 0 inside global 0
+
+pi approx with 1 points: 0.000000
+took 0.094373 seconds
+3
+inside local 0 inside global 0
+
+pi approx with 1 points: 0.000000
+took 0.099767 seconds
+4
+inside local 0 inside global 0
+
+pi approx with 1 points: 0.000000
+took 0.097942 seconds
+5
+inside local 0 inside global 0
+
+pi approx with 1 points: 0.000000
+took 0.096050 seconds
+1
+pi approx with 10 points: 3.200000
+took 0.000043 seconds
+2
+pi approx with 10 points: 3.200000
+took 0.000035 seconds
+3
+pi approx with 10 points: 3.200000
+took 0.000035 seconds
+4
+pi approx with 10 points: 3.200000
+took 0.000033 seconds
+5
+pi approx with 10 points: 3.200000
+took 0.000034 seconds
+1
+inside local 0 inside global 0
+
+pi approx with 10 points: 0.000000
+took 0.097227 seconds
+2
+inside local 0 inside global 0
+
+pi approx with 10 points: 0.000000
+took 0.097192 seconds
+3
+inside local 0 inside global 0
+
+pi approx with 10 points: 0.000000
+took 0.099070 seconds
+4
+inside local 0 inside global 0
+
+pi approx with 10 points: 0.000000
+took 0.096896 seconds
+5
+inside local 0 inside global 0
+
+pi approx with 10 points: 0.000000
+took 0.097873 seconds
+1
+pi approx with 100 points: 3.120000
+took 0.000044 seconds
+2
+pi approx with 100 points: 3.120000
+took 0.000044 seconds
+3
+pi approx with 100 points: 3.120000
+took 0.000042 seconds
+4
+pi approx with 100 points: 3.120000
+took 0.000038 seconds
+5
+pi approx with 100 points: 3.120000
+took 0.000038 seconds
+1
+inside local 1 inside global 68
+
+pi approx with 100 points: 2.720000
+took 0.098735 seconds
+2
+inside local 1 inside global 78
+
+pi approx with 100 points: 3.120000
+took 0.095343 seconds
+3
+inside local 1 inside global 78
+
+pi approx with 100 points: 3.120000
+took 0.094478 seconds
+4
+inside local 1 inside global 75
+
+pi approx with 100 points: 3.000000
+took 0.100042 seconds
+5
+inside local 1 inside global 79
+
+pi approx with 100 points: 3.160000
+took 0.100846 seconds
+1
+pi approx with 1000 points: 3.132000
+took 0.000066 seconds
+2
+pi approx with 1000 points: 3.132000
+took 0.000060 seconds
+3
+pi approx with 1000 points: 3.132000
+took 0.000061 seconds
+4
+pi approx with 1000 points: 3.132000
+took 0.000065 seconds
+5
+pi approx with 1000 points: 3.132000
+took 0.000058 seconds
+1
+inside local 8 inside global 764
+
+pi approx with 1000 points: 3.056000
+took 0.095974 seconds
+2
+--------------------------------------------------------------------------
+A system call failed during shared memory initialization that should
+not have.  It is likely that your MPI job will now either abort or
+experience performance degradation.
+
+  Local host:  n001.intern.lcc3.intra.uibk.ac.at
+  System call: open(2) 
+  Error:       Permission denied (errno 13)
+--------------------------------------------------------------------------
+inside local 8 inside global 767
+
+pi approx with 1000 points: 3.068000
+took 0.093271 seconds
+[n001.intern.lcc3.intra.uibk.ac.at:2953131] 95 more processes have sent help message help-opal-shmem-mmap.txt / sys call fail
+[n001.intern.lcc3.intra.uibk.ac.at:2953131] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+3
+inside local 8 inside global 767
+
+pi approx with 1000 points: 3.068000
+took 0.096601 seconds
+4
+inside local 8 inside global 737
+
+pi approx with 1000 points: 2.948000
+took 0.093692 seconds
+5
+inside local 8 inside global 768
+
+pi approx with 1000 points: 3.072000
+took 0.107974 seconds
+1
+pi approx with 10000 points: 3.171200
+took 0.000291 seconds
+2
+pi approx with 10000 points: 3.171200
+took 0.000297 seconds
+3
+pi approx with 10000 points: 3.171200
+took 0.000282 seconds
+4
+pi approx with 10000 points: 3.171200
+took 0.000283 seconds
+5
+pi approx with 10000 points: 3.171200
+took 0.000283 seconds
+1
+inside local 80 inside global 7796
+
+pi approx with 10000 points: 3.118400
+took 0.097132 seconds
+2
+inside local 80 inside global 7867
+
+pi approx with 10000 points: 3.146800
+took 0.097720 seconds
+3
+inside local 80 inside global 7867
+
+pi approx with 10000 points: 3.146800
+took 0.103914 seconds
+4
+inside local 80 inside global 7871
+
+pi approx with 10000 points: 3.148400
+took 0.097514 seconds
+5
+inside local 80 inside global 7794
+
+pi approx with 10000 points: 3.117600
+took 0.102690 seconds
+1
+pi approx with 100000 points: 3.141520
+took 0.002534 seconds
+2
+pi approx with 100000 points: 3.141520
+took 0.002536 seconds
+3
+pi approx with 100000 points: 3.141520
+took 0.002530 seconds
+4
+pi approx with 100000 points: 3.141520
+took 0.002533 seconds
+5
+pi approx with 100000 points: 3.141520
+took 0.002509 seconds
+1
+inside local 819 inside global 78746
+
+pi approx with 100000 points: 3.149840
+took 0.089364 seconds
+2
+inside local 819 inside global 78746
+
+pi approx with 100000 points: 3.149840
+took 0.092467 seconds
+3
+inside local 819 inside global 78452
+
+pi approx with 100000 points: 3.138080
+took 0.100577 seconds
+4
+inside local 819 inside global 78559
+
+pi approx with 100000 points: 3.142360
+took 0.098267 seconds
+5
+inside local 819 inside global 78637
+
+pi approx with 100000 points: 3.145480
+took 0.096387 seconds
+1
+pi approx with 1000000 points: 3.141664
+took 0.025135 seconds
+2
+pi approx with 1000000 points: 3.141664
+took 0.024850 seconds
+3
+pi approx with 1000000 points: 3.141664
+took 0.024966 seconds
+4
+pi approx with 1000000 points: 3.141664
+took 0.024901 seconds
+5
+pi approx with 1000000 points: 3.141664
+took 0.024874 seconds
+1
+inside local 8264 inside global 785388
+
+pi approx with 1000000 points: 3.141552
+took 0.100164 seconds
+2
+inside local 8264 inside global 785598
+
+pi approx with 1000000 points: 3.142392
+took 0.100733 seconds
+3
+inside local 8264 inside global 785598
+
+pi approx with 1000000 points: 3.142392
+took 0.094616 seconds
+4
+inside local 8264 inside global 785662
+
+pi approx with 1000000 points: 3.142648
+took 0.097661 seconds
+5
+inside local 8264 inside global 785122
+
+pi approx with 1000000 points: 3.140488
+took 0.093346 seconds
+1
+pi approx with 10000000 points: 3.141130
+took 0.248418 seconds
+2
+pi approx with 10000000 points: 3.141130
+took 0.248409 seconds
+3
+pi approx with 10000000 points: 3.141130
+took 0.248547 seconds
+4
+pi approx with 10000000 points: 3.141130
+took 0.248515 seconds
+5
+pi approx with 10000000 points: 3.141130
+took 0.248704 seconds
+1
+inside local 81834 inside global 7854200
+
+pi approx with 10000000 points: 3.141680
+took 0.104345 seconds
+2
+inside local 81834 inside global 7852299
+
+pi approx with 10000000 points: 3.140920
+took 0.100186 seconds
+3
+inside local 81834 inside global 7853992
+
+pi approx with 10000000 points: 3.141597
+took 0.101310 seconds
+4
+inside local 81834 inside global 7853992
+
+pi approx with 10000000 points: 3.141597
+took 0.106789 seconds
+5
+inside local 81834 inside global 7853499
+
+pi approx with 10000000 points: 3.141400
+took 0.105643 seconds
+1
+pi approx with 100000000 points: 3.141698
+took 2.488403 seconds
+2
+pi approx with 100000000 points: 3.141698
+took 2.481253 seconds
+3
+pi approx with 100000000 points: 3.141698
+took 2.483997 seconds
+4
+pi approx with 100000000 points: 3.141698
+took 2.483220 seconds
+5
+pi approx with 100000000 points: 3.141698
+took 2.480976 seconds
+1
+inside local 818103 inside global 78541345
+
+pi approx with 100000000 points: 3.141654
+took 0.151350 seconds
+2
+--------------------------------------------------------------------------
+A system call failed during shared memory initialization that should
+not have.  It is likely that your MPI job will now either abort or
+experience performance degradation.
+
+  Local host:  n001.intern.lcc3.intra.uibk.ac.at
+  System call: open(2) 
+  Error:       Permission denied (errno 13)
+--------------------------------------------------------------------------
+inside local 818103 inside global 78537703
+
+pi approx with 100000000 points: 3.141508
+took 0.154138 seconds
+[n001.intern.lcc3.intra.uibk.ac.at:2954813] 1 more process has sent help message help-opal-shmem-mmap.txt / sys call fail
+[n001.intern.lcc3.intra.uibk.ac.at:2954813] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+3
+inside local 818103 inside global 78541234
+
+pi approx with 100000000 points: 3.141649
+took 0.155827 seconds
+4
+inside local 818103 inside global 78534970
+
+pi approx with 100000000 points: 3.141399
+took 0.146486 seconds
+5
+inside local 818103 inside global 78532845
+
+pi approx with 100000000 points: 3.141314
+took 0.158488 seconds
+1
+pi approx with 1000000000 points: 3.141603
+took 24.870471 seconds
+2
+pi approx with 1000000000 points: 3.141603
+took 24.831328 seconds
+3
+pi approx with 1000000000 points: 3.141603
+took 24.855304 seconds
+4
+pi approx with 1000000000 points: 3.141603
+took 24.850705 seconds
+5
+pi approx with 1000000000 points: 3.141603
+took 24.842612 seconds
+1
+inside local 8179887 inside global 785401519
+
+pi approx with 1000000000 points: 3.141606
+took 0.568724 seconds
+2
+inside local 8179887 inside global 785400205
+
+pi approx with 1000000000 points: 3.141601
+took 0.573494 seconds
+3
+inside local 8179887 inside global 785392391
+
+pi approx with 1000000000 points: 3.141570
+took 0.574321 seconds
+4
+inside local 8179887 inside global 785394689
+
+pi approx with 1000000000 points: 3.141579
+took 0.574403 seconds
+5
+inside local 8179887 inside global 785395115
+
+pi approx with 1000000000 points: 3.141581
+took 0.573179 seconds

@@ -60,7 +60,6 @@ int main(int argc, char* argv[]) {
 		printf("took %f seconds\n", time_taken);
 		timigs_to_csv("./measurements.csv", N, time_taken);
 	}
-	MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Finalize();
 	
 	return 0;
