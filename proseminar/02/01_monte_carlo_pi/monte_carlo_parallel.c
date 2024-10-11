@@ -41,6 +41,13 @@ int main(int argc, char* argv[]) {
 	int insideLocal = 0;
 	MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
+
+	if (N < numProcesses){ // otherwise division by 0 below
+		MPI_Finalize();
+		printf("error N cannot be less than the number of processes!\n");
+		return -1;
+	}
+
 	srand(time(NULL)*myRank);
 
 	int calculations_per_process = N/numProcesses;
@@ -48,16 +55,14 @@ int main(int argc, char* argv[]) {
 	
 	// here https://mpitutorial.com/tutorials/mpi-reduce-and-allreduce/ was quite helpful
 	int insideGlobal = 0;
-	//MPI_Reduce( void* send_data, void* recv_data, int count, MPI_Datatype datatype, MPI_Op op, int root, MPI_Comm communicator)
 	MPI_Reduce(&insideLocal, &insideGlobal, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-	if (myRank == 0){
-		printf("inside local %d inside global %d\n\n", insideLocal, insideGlobal);
-		double result = 4.f * insideGlobal / N;
-		printf("pi approx with %i points: %f\n", N, result);
+	if (myRank == 0){ // let only one rank do the last step
+		double result = 4.f * insideGlobal / (N-(N%numProcesses)); // correction if N is not fully divisible by numProcesses
+		printf("pi approx with %i points: %f\n", (N-(N%numProcesses)), result);
 		clock_t end = clock();
 		double time_taken = ((double)(end - start)) / CLOCKS_PER_SEC;
-		printf("took %f seconds\n", time_taken);
+		printf("calculation of pi took %f seconds\n", time_taken);
 		timigs_to_csv("./measurements.csv", N, time_taken);
 	}
 	MPI_Finalize();
