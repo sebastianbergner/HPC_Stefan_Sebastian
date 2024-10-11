@@ -1,18 +1,25 @@
 CC=gcc
+MPICC=mpicc
 CFLAGS=-O2 -std=gnu11 -Wall -Wextra -pedantic
 
-.PHONY: all
-all: heat_stencil_1D_seq
+.PHONY: all clean run plot
 
-heat_stencil_1D_seq: heat_stencil_1D_seq.c
-	@$(CC) $(CFLAGS) $< -o heat_stencil_1D_seq
+all: heat_stencil_1D_seq heat_stencil_1D_par
 
-.PHONY: clean
+heat_stencil_1D_seq: src/heat_stencil_1D_seq.c
+	@mkdir -p build
+	@$(CC) $(CFLAGS) $< -o build/heat_stencil_1D_seq
+
+heat_stencil_1D_par: src/heat_stencil_1D_par.c
+	@mkdir -p build
+	@$(MPICC) $(CFLAGS) $< -o build/heat_stencil_1D_par
+
 clean:
-	@rm heat_stencil_1D_seq
+	rm -rf build output
 
-.PHONY: run
-run: all
-	@echo "Sequential:"
-	@./heat_stencil_1D_seq
-	@echo
+run:
+	rm -rf build output
+	sbatch job.sh
+
+plot:
+	module load Anaconda3/2023.10/python-3.11.5-anaconda-2023.10 && python3 src/plot.py output/measurements.csv

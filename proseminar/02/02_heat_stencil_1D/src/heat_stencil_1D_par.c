@@ -1,48 +1,84 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <mpi.h>
 
 typedef double value_t;
-
 #define RESOLUTION 120
 
 // -- vector utilities --
-
 typedef value_t *Vector;
-
 Vector createVector(int N);
-
 void releaseVector(Vector m);
-
 void printTemperature(Vector m, int N);
 
-// -- simulation code ---
+// -- measurment utilities --
+#define FOLDER "output"
+#define FILENAME "measurements.csv"
+#define TYPE "parallel"
+void timings_to_csv(unsigned problem_size, double time);
 
+// -- simulation code ---
 int main(int argc, char **argv) {
-  // 'parsing' optional input parameter = problem size
-  int N = 2000;
-  if (argc > 1) {
-    N = atoi(argv[1]);
-  }
+  clock_t start = clock();
+
+  if(argc < 2){
+		printf("Usage: %s <number of iterations>\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+  int N = atoi(argv[1]);
   int T = N * 500;
+
+  MPI_Init(&argc, &argv);
+  int myRank, numRanks;
+  MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+	MPI_Comm_size(MPI_COMM_WORLD, &numRanks);
+
+  if (N % numRanks) {
+    printf("Configuration not possible: N=%d, ranks=%d\n", N, numRanks);
+    MPI_Finalize();
+    return EXIT_FAILURE;
+  }
+
   printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
 
   // ---------- setup ----------
 
-  // create a buffer for storing temperature fields
-  Vector A = createVector(N);
+  // create a buffer for storing temperature fields per rank
+  int vector_size_per_rank = N / numRanks;
+  Vector A = NULL;
+  if (myRank == 0) {
+    A = createVector(N);
+  } else {
+    A = createVector(vector_size_per_rank);
+  }
 
   // set up initial conditions in A
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < vector_size_per_rank; i++) {
     A[i] = 273; // temperature is 0° C everywhere (273 K)
   }
 
-  // and there is a heat source in one corner
+  // and there is a heat source somewhere
   int source_x = N / 4;
-  A[source_x] = 273 + 60;
+  int source_y = 273 + 60;
 
-  printf("Initial:\t");
-  printTemperature(A, N);
-  printf("\n");
+  int rank_with_source = source_x / vector_size_per_rank;
+  if (myRank == 0) {
+    A[source_x] = source_y;
+  }
+  if (myRank == rank_with_source) {
+    A[source_x % vector_size_per_rank] = source_y;
+  }
+
+  if (myRank == 0) {
+    printf("Initial:\t");
+    printTemperature(A, N);
+    printf("\n");
+  }
 
   // ---------- compute ----------
 
@@ -85,6 +121,11 @@ int main(int argc, char **argv) {
 
   releaseVector(B);
 
+  // measure time
+  clock_t end = clock();
+  double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+	timings_to_csv(N, total_time);
+
   // ---------- check ----------
 
   printf("Final:\t\t");
@@ -101,6 +142,7 @@ int main(int argc, char **argv) {
   }
 
   printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+  printf("Wall Clock Time = %f seconds\n", total_time);
 
   // ---------- cleanup ----------
 
@@ -122,7 +164,7 @@ void printTemperature(Vector m, int N) {
   const int numColors = 12;
 
   // boundaries for temperature (for simplicity hard-coded)
-  const value_t max = 273 + 30;
+  const value_t max = 273 + 60;
   const value_t min = 273 + 0;
 
   // set the 'render' resolution
@@ -152,4 +194,17 @@ void printTemperature(Vector m, int N) {
   }
   // right wall
   printf("X");
+}
+
+void timings_to_csv(unsigned problem_size, double time) {
+	FILE* fpt;
+	int set_header = 0;
+  char full_filepath[1024];
+  sprintf(full_filepath, "%s/%s", FOLDER, FILENAME);
+  if(access(FOLDER, F_OK) != 0) mkdir(FOLDER, 0755);
+	if(access(full_filepath, F_OK) != 0) set_header = 1;
+	fpt = fopen(full_filepath, "a+");
+	if(set_header) fprintf(fpt, "Type,Problem Size,Time\n");
+	fprintf(fpt, "%s,%u,%.9f\n", TYPE, problem_size, time);
+	fclose(fpt);
 }
