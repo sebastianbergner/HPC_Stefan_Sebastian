@@ -17,8 +17,7 @@ void printTemperature(Vector m, int N);
 // -- measurment utilities --
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
-#define TYPE "serial"
-void timings_to_csv(unsigned problem_size, double time);
+void timings_to_csv(unsigned problem_size, double time, int numRanks);
 
 // -- simulation code ---
 int main(int argc, char **argv) {
@@ -93,7 +92,7 @@ int main(int argc, char **argv) {
   // measure time
   clock_t end = clock();
   double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-	timings_to_csv(N, total_time);
+	timings_to_csv(N, total_time, 1);
 
   // ---------- check ----------
 
@@ -165,7 +164,7 @@ void printTemperature(Vector m, int N) {
   printf("X");
 }
 
-void timings_to_csv(unsigned problem_size, double time) {
+void timings_to_csv(unsigned problem_size, double time, int numRanks) {
 	FILE* fpt;
 	int set_header = 0;
   char full_filepath[1024];
@@ -173,7 +172,7 @@ void timings_to_csv(unsigned problem_size, double time) {
   if(access(FOLDER, F_OK) != 0) mkdir(FOLDER, 0755);
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
-	if(set_header) fprintf(fpt, "Type,Problem Size,Time\n");
-	fprintf(fpt, "%s,%u,%.9f\n", TYPE, problem_size, time);
+	if(set_header) fprintf(fpt, "Ranks,Problem Size,Time\n");
+	fprintf(fpt, "%d,%u,%.9f\n", numRanks, problem_size, time);
 	fclose(fpt);
 }

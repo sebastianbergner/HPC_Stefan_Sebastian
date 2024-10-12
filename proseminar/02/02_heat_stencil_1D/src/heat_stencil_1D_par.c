@@ -18,8 +18,7 @@ void printTemperature(Vector m, int N);
 // -- measurment utilities --
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
-#define TYPE "parallel"
-void timings_to_csv(unsigned problem_size, double time);
+void timings_to_csv(unsigned problem_size, double time, int numRanks);
 
 // -- simulation code ---
 int main(int argc, char **argv) {
@@ -44,17 +43,22 @@ int main(int argc, char **argv) {
     return EXIT_FAILURE;
   }
 
-  printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
+  if (myRank == 0) {
+    printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
+  }
 
   // ---------- setup ----------
 
   // create a buffer for storing temperature fields per rank
   int vector_size_per_rank = N / numRanks;
   Vector A = NULL;
+  Vector B = NULL; // create a second buffer for the computation
   if (myRank == 0) {
     A = createVector(N);
+    B = createVector(N);
   } else {
     A = createVector(vector_size_per_rank);
+    B = createVector(vector_size_per_rank);
   }
 
   // set up initial conditions in A
@@ -81,16 +85,50 @@ int main(int argc, char **argv) {
   }
 
   // ---------- compute ----------
-
-  // create a second buffer for the computation
-  Vector B = createVector(N);
+  value_t t_from_previous_rank = 0;
+  value_t t_from_next_rank = 0;
 
   // for each time step ..
   for (int t = 0; t < T; t++) {
+    // communication between ranks to get temperatures of adjacent cells
+    if (myRank % 2 == 0) {
+      if (myRank != numRanks-1) {
+        // send last temperature to next rank
+        MPI_Send(&A[vector_size_per_rank-1], 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD);
+        // receive first temperature from next rank
+        MPI_Recv(&t_from_next_rank, 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      } else {
+        t_from_next_rank = A[vector_size_per_rank-1];
+      }
+
+      if (myRank != 0) {
+        // receive last temperature from previous rank
+        MPI_Recv(&t_from_previous_rank, 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        // send first temperature to previous rank
+        MPI_Send(&A[0], 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD);
+      } else {
+        t_from_previous_rank = A[0];
+      }
+    } else {
+      // receive last temperature from previous rank
+      MPI_Recv(&t_from_previous_rank, 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      // send first temperature to previous rank
+      MPI_Send(&A[0], 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD);
+
+      if (myRank != numRanks-1) {
+        // send last temperature to next rank
+        MPI_Send(&A[vector_size_per_rank-1], 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD);
+        // receive first temperature from next rank
+        MPI_Recv(&t_from_next_rank, 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      } else {
+        t_from_next_rank = A[vector_size_per_rank-1];
+      }
+    }
+
     // .. we propagate the temperature
-    for (long long i = 0; i < N; i++) {
+    for (long long i = 0; i < vector_size_per_rank; i++) {
       // center stays constant (the heat is still on)
-      if (i == source_x) {
+      if (myRank == rank_with_source && i == (source_x % vector_size_per_rank)) {
         B[i] = A[i];
         continue;
       }
@@ -99,8 +137,8 @@ int main(int argc, char **argv) {
       value_t tc = A[i];
 
       // get temperatures of adjacent cells
-      value_t tl = (i != 0) ? A[i - 1] : tc;
-      value_t tr = (i != N - 1) ? A[i + 1] : tc;
+      value_t tl = (i != 0) ? A[i - 1] : t_from_previous_rank;
+      value_t tr = (i != vector_size_per_rank - 1) ? A[i + 1] : t_from_next_rank;
 
       // compute new temperature at current position
       B[i] = tc + 0.2 * (tl + tr + (-2 * tc));
@@ -113,40 +151,48 @@ int main(int argc, char **argv) {
 
     // show intermediate step
     if (!(t % 10000)) {
-      printf("Step t=%d:\t", t);
-      printTemperature(A, N);
-      printf("\n");
+      // Gather all data from all ranks to rank 0
+      MPI_Gather(A, vector_size_per_rank, MPI_DOUBLE, A, vector_size_per_rank, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+      if (myRank == 0) {
+        printf("Step t=%d:\t", t);
+        printTemperature(A, N);
+        printf("\n");
+      }
     }
   }
-
+  
   releaseVector(B);
 
-  // measure time
-  clock_t end = clock();
-  double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-	timings_to_csv(N, total_time);
-
-  // ---------- check ----------
-
-  printf("Final:\t\t");
-  printTemperature(A, N);
-  printf("\n");
-
+  MPI_Gather(A, vector_size_per_rank, MPI_DOUBLE, A, vector_size_per_rank, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   int success = 1;
-  for (long long i = 0; i < N; i++) {
-    value_t temp = A[i];
-    if (273 <= temp && temp <= 273 + 60)
-      continue;
-    success = 0;
-    break;
+
+  if (myRank == 0) {
+    // measure time
+    clock_t end = clock();
+    double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
+    timings_to_csv(N, total_time, numRanks);
+
+    // ---------- check ----------
+    printf("Final:\t\t");
+    printTemperature(A, N);
+    printf("\n");
+
+    int success = 1;
+    for (long long i = 0; i < N; i++) {
+      value_t temp = A[i];
+      if (273 <= temp && temp <= 273 + 60)
+        continue;
+      success = 0;
+      break;
+    }
+
+    printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+    printf("Wall Clock Time = %f seconds\n", total_time);
   }
 
-  printf("Verification: %s\n", (success) ? "OK" : "FAILED");
-  printf("Wall Clock Time = %f seconds\n", total_time);
-
   // ---------- cleanup ----------
-
   releaseVector(A);
+  MPI_Finalize();
 
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -196,7 +242,7 @@ void printTemperature(Vector m, int N) {
   printf("X");
 }
 
-void timings_to_csv(unsigned problem_size, double time) {
+void timings_to_csv(unsigned problem_size, double time, int numRanks) {
 	FILE* fpt;
 	int set_header = 0;
   char full_filepath[1024];
@@ -204,7 +250,7 @@ void timings_to_csv(unsigned problem_size, double time) {
   if(access(FOLDER, F_OK) != 0) mkdir(FOLDER, 0755);
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
-	if(set_header) fprintf(fpt, "Type,Problem Size,Time\n");
-	fprintf(fpt, "%s,%u,%.9f\n", TYPE, problem_size, time);
+	if(set_header) fprintf(fpt, "Ranks,Problem Size,Time\n");
+	fprintf(fpt, "%d,%u,%.9f\n", numRanks, problem_size, time);
 	fclose(fpt);
 }
