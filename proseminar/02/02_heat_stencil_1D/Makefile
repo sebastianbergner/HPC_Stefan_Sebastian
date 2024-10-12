@@ -19,10 +19,13 @@ heat_stencil_1D_par_simple: src/heat_stencil_1D_par_simple.c
 	@$(MPICC) $(CFLAGS) $< -o build/heat_stencil_1D_par_simple
 
 clean:
+	rm -rf build
+
+clean_all:
 	rm -rf build output
 
 run:
-	rm -rf build output
+	rm -rf build
 	sbatch job.sh
 
 plot:
