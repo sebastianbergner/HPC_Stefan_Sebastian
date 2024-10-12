@@ -25,7 +25,7 @@ clean_all:
 	rm -rf build output
 
 run:
-	rm -rf build
+	rm -rf build output
 	sbatch job.sh
 
 plot:
