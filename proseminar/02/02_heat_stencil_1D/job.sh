@@ -2,6 +2,9 @@
 #SBATCH --partition=lva
 #SBATCH --job-name ps2.2
 #SBATCH --output=output/output.log
+#SBATCH --time=1:00:00
+#SBATCH --mail-user=stefan.r.wagner@student.uibk.ac.at,sebastian.bergner@student.uibk.ac.at
+#SBATCH --mail-type=BEGIN,END,FAIL
 
 #SBATCH --ntasks=96
 
@@ -19,8 +22,8 @@ PROBLEMS="768 1536 3072 6144"
 RANKS="2 6 12 24 48 96"
 
 for i in $(seq 1 $REP); do
+    echo ----------------- Iteration $i -----------------
     for N in $PROBLEMS; do
-        echo ----------------- Iteration $i -----------------
         echo ./build/heat_stencil_1D_seq $N
         ./build/heat_stencil_1D_seq $N
         echo
