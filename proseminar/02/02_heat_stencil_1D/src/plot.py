@@ -6,9 +6,8 @@ import argparse
 
 plt.rcParams['figure.dpi'] = 400
 
-
-def sns_plotter(x, y, ax, title, xlabel, ylabel, df, hue, errorbar='sd'):
-    plot = sns.barplot(x=x, y=y, hue=hue, data=df, ax=ax, errorbar=errorbar)
+def sns_plotter(x, y, ax, title, xlabel, ylabel, df, hue, errorbar='sd', palette=None):
+    plot = sns.barplot(x=x, y=y, hue=hue, data=df, ax=ax, errorbar=errorbar, palette=palette)
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
@@ -26,8 +25,16 @@ def plot_all(filename: str):
     # Bar Plots for Mean values
     fig, axs = plt.subplots(1, 1, figsize=(12, 10))
 
+    # Define a color palette for the bars
+    colors = ['#00429d', '#93c2ff', '#ff004d', '#ffa07a', '#f4e842', 
+          '#3ebf72', '#00b7ff', '#ffb14e', '#ff7070', '#6a0dad', 
+          '#ff77ff', '#008080', '#ff4500']
+
+
+
     # Wall Time Mean
-    sns_plotter(x='Problem Size', y='Time', hue='Impl/Ranks', df=df, ax=axs, errorbar='sd', title='Measurement', xlabel='Problem Size', ylabel='Time (log)')
+    sns_plotter(x='Problem Size', y='Time', hue='Impl/Ranks', df=df, ax=axs, errorbar='sd', 
+                title='Measurement', xlabel='Problem Size', ylabel='Time (log)', palette=colors)
 
     plt.yscale('log')
 
