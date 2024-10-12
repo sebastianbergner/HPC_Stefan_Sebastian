@@ -4,15 +4,19 @@ CFLAGS=-O2 -std=gnu11 -Wall -Wextra -pedantic
 
 .PHONY: all clean run plot
 
-all: heat_stencil_1D_seq heat_stencil_1D_par
+all: heat_stencil_1D_seq heat_stencil_1D_par_complex heat_stencil_1D_par_simple
 
 heat_stencil_1D_seq: src/heat_stencil_1D_seq.c
 	@mkdir -p build
 	@$(CC) $(CFLAGS) $< -o build/heat_stencil_1D_seq
 
-heat_stencil_1D_par: src/heat_stencil_1D_par.c
+heat_stencil_1D_par_complex: src/heat_stencil_1D_par_complex.c
 	@mkdir -p build
-	@$(MPICC) $(CFLAGS) $< -o build/heat_stencil_1D_par
+	@$(MPICC) $(CFLAGS) $< -o build/heat_stencil_1D_par_complex
+
+heat_stencil_1D_par_simple: src/heat_stencil_1D_par_simple.c
+	@mkdir -p build
+	@$(MPICC) $(CFLAGS) $< -o build/heat_stencil_1D_par_simple
 
 clean:
 	rm -rf build output

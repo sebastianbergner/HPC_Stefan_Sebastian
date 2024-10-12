@@ -172,7 +172,7 @@ void timings_to_csv(unsigned problem_size, double time, int numRanks) {
   if(access(FOLDER, F_OK) != 0) mkdir(FOLDER, 0755);
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
-	if(set_header) fprintf(fpt, "Ranks,Problem Size,Time\n");
-	fprintf(fpt, "%d,%u,%.9f\n", numRanks, problem_size, time);
+	if(set_header) fprintf(fpt, "Impl/Ranks,Problem Size,Time\n");
+	fprintf(fpt, "seq/%d,%u,%.9f\n", numRanks, problem_size, time);
 	fclose(fpt);
 }

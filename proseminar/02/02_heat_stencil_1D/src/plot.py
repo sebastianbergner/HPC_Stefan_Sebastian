@@ -27,7 +27,7 @@ def plot_all(filename: str):
     fig, axs = plt.subplots(1, 1, figsize=(12, 10))
 
     # Wall Time Mean
-    sns_plotter(x='Problem Size', y='Time', hue='Ranks', df=df, ax=axs, errorbar='sd', title='Measurement', xlabel='Problem Size', ylabel='Time (log)')
+    sns_plotter(x='Problem Size', y='Time', hue='Impl/Ranks', df=df, ax=axs, errorbar='sd', title='Measurement', xlabel='Problem Size', ylabel='Time (log)')
 
     plt.yscale('log')
 
