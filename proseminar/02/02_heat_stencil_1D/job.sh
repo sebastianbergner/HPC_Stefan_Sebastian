@@ -3,7 +3,7 @@
 #SBATCH --job-name ps2.2
 #SBATCH --output=output/output.log
 
-#SBATCH --ntasks=2
+#SBATCH --ntasks=96
 # #SBATCH --ntasks=96
 # #SBATCH --nodes=8
 
@@ -16,9 +16,9 @@ module load openmpi/3.1.6-gcc-12.2.0-d2gmn55
 
 make --no-print-directory
 
-REP=1
-# PROBLEMS="768 1536 3072 6144"
-PROBLEMS="1536"
+REP=2
+PROBLEMS="768 1536 3072 6144"
+RANKS="2 6 12 24 48 96"
 
 for i in $(seq 1 $REP); do
     for N in $PROBLEMS; do
@@ -26,8 +26,10 @@ for i in $(seq 1 $REP); do
         echo ./build/heat_stencil_1D_seq $N
         ./build/heat_stencil_1D_seq $N
         echo
-        echo mpiexec build/heat_stencil_1D_par $N
-        mpiexec build/heat_stencil_1D_par $N
-        echo
+        for P in $RANKS; do
+            echo mpiexec -n $P build/heat_stencil_1D_par $N
+            mpiexec -n $P build/heat_stencil_1D_par $N
+            echo
+        done;
     done
 done
