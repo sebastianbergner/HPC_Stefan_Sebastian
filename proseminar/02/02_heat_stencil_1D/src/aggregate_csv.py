@@ -13,6 +13,10 @@ def aggregate_and_calculate_std(input_csv):
         Time_std=('Time', 'std')
     ).reset_index()
 
+    # Round the mean and std to two decimal places
+    aggregated_df['Time_mean'] = aggregated_df['Time_mean'].round(2)
+    aggregated_df['Time_std'] = aggregated_df['Time_std'].round(2)
+
     # Sort alphabetically by 'Impl/Ranks'
     aggregated_df = aggregated_df.sort_values(by='Impl/Ranks')
 
@@ -42,3 +46,4 @@ def main():
 # Entry point
 if __name__ == '__main__':
     main()
+
