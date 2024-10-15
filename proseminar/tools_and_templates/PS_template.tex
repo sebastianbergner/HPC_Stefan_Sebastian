@@ -8,34 +8,39 @@
 \usepackage{geometry}
 \usepackage{pgfplots} 
 \usepackage{listings}
-\usepackage{enumerate}
+\usepackage{enumitem}
 \usepackage{lipsum}  
 \usepackage{color}
 \usepackage[colorlinks=true, urlcolor=blue, linkcolor=blue]{hyperref}
 \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
 
 \definecolor{codegreen}{rgb}{0,0.6,0}
-\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codegray}{rgb}{0.2,0.2,0.2}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
-\definecolor{backcolour}{rgb}{0.9,0.9,0.92}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.952}
 
 \lstdefinestyle{mystyle}{
-    backgroundcolor=\color{backcolour},   
-    commentstyle=\color{codegreen},
-    keywordstyle=\color{blue},
-    numberstyle=\tiny\color{codegray},
-    stringstyle=\color{codepurple},
-    basicstyle=\ttfamily\footnotesize,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=5pt,                  
-    showspaces=false,                
-    showstringspaces=false,
-    showtabs=false,                  
-    tabsize=2
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{blue},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2,
+	linewidth=1.185\linewidth,
+	resetmargins=true,
+	xleftmargin=-1cm,
+	xrightmargin=0.085\textwidth,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}}
 }
 
 \lstset{style=mystyle}
@@ -44,15 +49,32 @@
 \title{High Performance Computing Proseminar 2024 \\
     \large Assignment N} %exchange for assignment number
 
-\author{Stefan Wagner \& Sebastian Bergner}
+\author{Stefan Wagner \& Sebastian Bergner\\Team: Planning Desaster}
 \begin{document}
     
     \maketitle
     
     \section*{Exercise 1}
-    
+    Demo lstlisting below:
+   	\begin{lstlisting}[language=c]
+double mc_pi(unsigned int S) {
+	int in_count = 0;
+	for(unsigned i = 0; i < S; ++i) {
+		const double x = rand() / (double)RAND_MAX;
+		const double y = rand() / (double)RAND_MAX;
+		if(x * x + y * y <= 1.f) {
+			in_count++;
+		}
+	}
+	return 4.f * in_count / S;
+}\end{lstlisting}
     \section*{Exercise 2}
-
+	
+	\begin{enumerate}[label=\textbf{\arabic *)}]
+		\item demo
+		\item enumerate with 
+		\item arabic numeration
+	\end{enumerate}
 
 
 \end{document}

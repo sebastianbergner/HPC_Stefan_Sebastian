@@ -33,8 +33,8 @@ def plot_all(filename: str):
 
 
     # Wall Time Mean
-    sns_plotter(x='Problem Size', y='Time', hue='Impl/Ranks', df=df, ax=axs, errorbar='sd', 
-                title='Measurement', xlabel='Problem Size', ylabel='Time (log)', palette=colors)
+    sns_plotter(x='Impl/Ranks', y='Time', hue='Problem Size', df=df, ax=axs, errorbar='sd', 
+                title='Measurement', xlabel='Implementation', ylabel='Time (log)', palette=colors)
 
     plt.yscale('log')
 

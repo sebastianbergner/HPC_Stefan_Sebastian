@@ -12,7 +12,7 @@ def sns_plotter(x, y, ax, title, xlabel, ylabel, df, hue, errorbar='sd'):
     ax.set_title(title)
     ax.set_xlabel(xlabel)
     ax.set_ylabel(ylabel)
-    ax.tick_params(axis='x', rotation=45)
+    ax.tick_params(axis='x', rotation=0)
     return plot
 
 def plot_all(filename: str):
@@ -27,11 +27,11 @@ def plot_all(filename: str):
     fig, axs = plt.subplots(1, 1, figsize=(12, 10))
 
     # Wall Time Mean
-    sns_plotter(x='Problem size', y='Time', hue='Type', df=df, ax=axs, errorbar='sd', title='Measurement', xlabel='Problem size', ylabel='Time (log)')
+    sns_plotter(x='Type', y='Time', hue='Problem size', df=df, ax=axs, errorbar='sd', title='Measurement', xlabel='Type', ylabel='Time (log)')
 
     plt.yscale('log')
 
-    plt.grid(True, which='both', axis='y', linestyle='-', linewidth=0.2)
+    plt.grid(True, which='both', axis='y', linestyle='-', linewidth=0.3)
     plt.gca().set_axisbelow(True)
 
     plt.tight_layout()
