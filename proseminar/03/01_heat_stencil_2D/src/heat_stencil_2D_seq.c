@@ -32,7 +32,6 @@ int main(int argc, char **argv) {
         N = atoi(argv[1]);
     }
     int T = N * 100;
-    printf("Computing heat-distribution for room size %dX%d for T=%d timesteps\n", N, N, T);
 
     // ---------- START CLOCK ----------
     clock_t start = clock();
@@ -54,7 +53,8 @@ int main(int argc, char **argv) {
     int source_y = N / 4;
     A[IND(source_x,source_y)] = 273 + 60;
 
-    printf("Initial:");
+    printf("Computing heat-distribution for room size %dX%d for T=%d timesteps\n", N, N, T);
+    printf("Initial:\n");
     printTemperature(A, N, N);
     printf("\n");
 
@@ -78,11 +78,8 @@ int main(int argc, char **argv) {
                 value_t up_temp = (i != 0) ? A[IND(i-1, j)] : current_temp;
                 value_t down_temp = (i != N-1) ? A[IND(i+1, j)] : current_temp;
 
-                // faster???
-                B[IND(i,j)] = (left_temp + right_temp + 4*current_temp + down_temp + up_temp)/8;
-                
-                // B[IND(i,j)] = current_temp + 1/8.f * (left_temp + right_temp + down_temp + up_temp + (-4 * current_temp));
-
+                B[IND(i,j)] = current_temp + 1/8.f * (left_temp + right_temp + down_temp + up_temp + (-4 * current_temp));
+                // B[IND(i,j)] = (left_temp + right_temp + 4*current_temp + down_temp + up_temp)/8;
             }
         }
 
@@ -102,7 +99,7 @@ int main(int argc, char **argv) {
     releaseMatrix(B);
 
     // ---------- FINAL RESULT ----------
-    printf("Final:");
+    printf("Final:\n");
     printTemperature(A, N, N);
     printf("\n");
 
@@ -126,6 +123,7 @@ int main(int argc, char **argv) {
     }
 
     printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+    printf("Wall Clock Time = %f seconds\n", total_time);
 
     // ---------- CLEANUP ----------
     releaseMatrix(A);

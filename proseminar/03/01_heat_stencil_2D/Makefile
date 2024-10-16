@@ -12,8 +12,7 @@ heat_stencil_2D_seq: src/heat_stencil_2D_seq.c
 
 heat_stencil_2D_par_blocking: src/heat_stencil_2D_par_blocking.c
 	@mkdir -p build
-	# @$(MPICC) $(CFLAGS) $< -o build/heat_stencil_2D_par_blocking
-	@$(CC) $(CFLAGS) $< -o build/heat_stencil_2D_par_blocking
+	@$(MPICC) $(CFLAGS) $< -o build/heat_stencil_2D_par_blocking -lm
 
 clean:
 	rm -rf build
