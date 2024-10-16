@@ -19,7 +19,7 @@ make --no-print-directory
 
 REP=1
 # PROBLEMS="192 384 768"
-PROBLEMS="192"
+PROBLEMS="36"
 # RANKS="2 6 12 24 48 96"
 RANKS="6"
 

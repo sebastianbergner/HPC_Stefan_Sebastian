@@ -1,6 +1,6 @@
 CC=gcc
 MPICC=mpicc
-CFLAGS=-O2 -std=gnu11 -Wall -Wextra -pedantic
+CFLAGS=-O2 -std=gnu11 -Wall -Wextra -Wpedantic
 
 .PHONY: all clean run plot aggregate
 

@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <omp.h>
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
@@ -9,8 +8,8 @@
 #include <mpi.h>
 #include <math.h>
 
-#define RESOLUTION_WIDTH 50
-#define RESOLUTION_HEIGHT 50
+#define RESOLUTION_WIDTH  6
+#define RESOLUTION_HEIGHT 6
 
 // ---------- VECTOR UTILITIES ----------
 typedef double value_t;
@@ -29,7 +28,7 @@ void printTemperature(double *m, int N, int M);
 // ---------- MEASUREMENT UTILITIES ----------
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
-#define TYPE "seq"
+#define TYPE "par_block"
 void timings_to_csv(int problem_size, double time, int numRanks);
 
 // ---------- SIMULATION CODE ----------
@@ -73,20 +72,26 @@ int main(int argc, char **argv) {
     Matrix A = NULL;
     // create a second matrix for the computation
     Matrix B = NULL;
+    // create a third matrix for print/verification aggregation
+    Matrix printMat = NULL;
 
     if (myRank == 0) {
-        A = createMatrix(N, N);
-        B = createMatrix(N, N);
-    } else {
-        A = createMatrix(rows_per_rank, cols_per_rank);
-        B = createMatrix(rows_per_rank, cols_per_rank);
+        printMat = createMatrix(N, N);
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < N; j++) {
+                printMat[calc_index(i, j, N)] = 273; // temperature is 0° C everywhere (273 K)
+            }
+        }
     }
 
+    A = createMatrix(rows_per_rank, cols_per_rank);
+    B = createMatrix(rows_per_rank, cols_per_rank);
+    
+
     // set up initial conditions in A
-    for (int i = 0; i < rows_per_rank; i++) {
-        for (int j = 0; j < cols_per_rank; j++) {
-            A[calc_index(i, j, cols_per_rank)] = 273; // temperature is 0° C everywhere (273 K)
-        }
+    for (int i = 0; i < rows_per_rank*cols_per_rank; i++) {
+        A[i] = 273; // temperature is 0° C everywhere (273 K)
+        B[i] = 273; // this is not required TODO remove
     }
 
     // and there is a heat source
@@ -98,7 +103,7 @@ int main(int argc, char **argv) {
     int rank_with_source = block_row * ranks_per_row + block_col;
 
     if (myRank == 0) {
-        A[calc_index(source_i, source_j, cols_per_rank)] = 273 + 60;
+        printMat[calc_index(source_i, source_j, N)] = 273 + 60;
     }
     if (myRank == rank_with_source) {
         A[calc_index(source_i % rows_per_rank, source_j % cols_per_rank, cols_per_rank)] = 273 + 60;
@@ -106,7 +111,7 @@ int main(int argc, char **argv) {
 
     if (myRank == 0) {
         printf("Initial:\n");
-        printTemperature(A, N, N);
+        printTemperature(printMat, N, N);
         printf("\n");
     }
 
@@ -126,7 +131,7 @@ int main(int argc, char **argv) {
         for (int i = 0; i < rows_per_rank; i++) {
             for (int j = 0; j < cols_per_rank; j++) {
                 if(myRank == rank_with_source && (i == (source_i % rows_per_rank)) && (j == (source_j % cols_per_rank))){
-                   B[calc_index(i, j, cols_per_rank)] = A[calc_index(i, j, cols_per_rank)];
+                    B[calc_index(i, j, cols_per_rank)] = A[calc_index(i, j, cols_per_rank)];
                     continue;
                 }
 
@@ -153,13 +158,33 @@ int main(int argc, char **argv) {
         // every 1000 steps show intermediate step
         if (!(t % 1000)) {
             // Gather all data from all ranks to rank 0
-            // for (int i = 0; i < rows_per_rank; i++) {
-            //     MPI_Gather(&A[calc_index(i, 0, rows_per_rank)], rows_per_rank, MPI_DOUBLE, &A[calc_index(i, 0, rows_per_rank)], rows_per_rank, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-            // }
+            int elements_per_rank = rows_per_rank*cols_per_rank;
+            A[0] = 278+myRank*5;
+            if (myRank != 0){
+                
+                MPI_Send(A, elements_per_rank, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+            }
+            if (myRank == 0) {
+                
+                for(int i = 0; i < elements_per_rank; i++){
+                    printMat[i%cols_per_rank+myRank*elements_per_rank+(i/cols_per_rank)*N] = A[i]; 
+                }
+                Matrix tmp = createMatrix(rows_per_rank, cols_per_rank);
+                for (int i = 1; i<numRanks; i++){
+                    MPI_Recv(tmp, elements_per_rank, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, NULL);
+                    printf("receive from: %d\n", i);
+                    for(int j = 0; j < elements_per_rank; j++){
+                        printMat[(j%cols_per_rank+i*elements_per_rank+(j/cols_per_rank)*N)] = tmp[j]; 
+                    }
+                    
+                }
+                releaseMatrix(tmp);
+            }
+
 
             if (myRank == 0) {
                 printf("Step t=%d\n", t);
-                printTemperature(A, N, N);
+                printTemperature(printMat, N, N);
                 printf("\n");
             }
         }
@@ -180,7 +205,7 @@ int main(int argc, char **argv) {
     // }
     if (myRank == 0)  {
         printf("Final:\n");
-        printTemperature(A, N, N);
+        printTemperature(printMat, N, N);
         printf("\n");
 
         // ---------- STOP CLOCK ----------
@@ -192,7 +217,7 @@ int main(int argc, char **argv) {
         // simple verification if nowhere the heat is more then the heat source
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                double temp = A[calc_index(i, j, N)];
+                double temp = printMat[calc_index(i, j, N)];
                 if (273 <= temp && temp <= 273 + 60) {
                     continue;
                 }
@@ -202,10 +227,12 @@ int main(int argc, char **argv) {
         }
         printf("Verification: %s\n", (success) ? "OK" : "FAILED");
         printf("Wall Clock Time = %f seconds\n", total_time);
+        releaseMatrix(printMat); //only rank 0 possesses this mat
     }
 
     // ---------- CLEANUP ----------
     releaseMatrix(A);
+    
     MPI_Finalize();
     // return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
     return 0;
@@ -236,7 +263,7 @@ void calc_rank_factors(int numRanks, int *ranks_per_row, int *ranks_per_col) {
     // find ranks_per_row x ranks_per_col == numRanks
     // best result would be sqrt(numRanks) x sqrt(numRanks) == numRanks
     // otherwise find almost evenly squared matrices
-    for (*ranks_per_row = (int)sqrt(numRanks); *ranks_per_row >= 1; *ranks_per_row--) {
+    for (*ranks_per_row = (int)sqrt(numRanks); *ranks_per_row >= 1; (*ranks_per_row)--) {
         if (numRanks % *ranks_per_row == 0) {
             *ranks_per_col = numRanks / *ranks_per_row;
             break;
