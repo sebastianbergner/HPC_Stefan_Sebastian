@@ -8,8 +8,8 @@
 #include <mpi.h>
 #include <math.h>
 
-#define RESOLUTION_WIDTH  6
-#define RESOLUTION_HEIGHT 6
+#define RESOLUTION_WIDTH  192
+#define RESOLUTION_HEIGHT 192
 
 // ---------- VECTOR UTILITIES ----------
 typedef double value_t;
@@ -19,6 +19,7 @@ void releaseVector(Vector m);
 
 // ---------- MATRIX UTILITIES ----------
 int calc_index(int i, int j, int N);
+int calc_index_supermatrix(int rank, int N, int ranks_per_row, int rows_per_rank, int cols_per_rank, int index_submatrix);
 typedef value_t *Matrix;
 Matrix createMatrix(int N, int M);
 void calc_rank_factors(int numRanks, int *ranks_per_row, int *ranks_per_col);
@@ -60,6 +61,7 @@ int main(int argc, char **argv) {
     int ranks_per_row = 0;
     int ranks_per_col = 0;
     calc_rank_factors(numRanks, &ranks_per_row, &ranks_per_col);
+    printf("ranks per row %d and col %d\n", ranks_per_row, ranks_per_col);
     int rows_per_rank = N / ranks_per_col;
     int cols_per_rank = N / ranks_per_row;
 
@@ -77,11 +79,15 @@ int main(int argc, char **argv) {
 
     if (myRank == 0) {
         printMat = createMatrix(N, N);
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
-                printMat[calc_index(i, j, N)] = 273; // temperature is 0° C everywhere (273 K)
-            }
+        for (int i = 0; i < N*N; i++) {
+           printMat[i] = 273;
         }
+        // for(int i = 0; i<rows_per_rank*cols_per_rank; i++)
+
+        printf("ranks per row %d \n ranks per col %d \n cols per rank %d \n rows per ranlk %d\n", ranks_per_row, ranks_per_col, cols_per_rank, rows_per_rank);
+
+        for(int i=0; i<numRanks; i++)
+        printMat[(1%ranks_per_row)*rows_per_rank+1/ranks_per_row*cols_per_rank*N] = 273+60; 
     }
 
     A = createMatrix(rows_per_rank, cols_per_rank);
@@ -96,11 +102,12 @@ int main(int argc, char **argv) {
 
     // and there is a heat source
     int source_i = N / 4;
-    int source_j = N / 4;
+    int source_j = 190;
 
     int block_row = source_i / rows_per_rank;
     int block_col = source_j / cols_per_rank;
     int rank_with_source = block_row * ranks_per_row + block_col;
+    printf("heat source located in rank %d\n", rank_with_source);
 
     if (myRank == 0) {
         printMat[calc_index(source_i, source_j, N)] = 273 + 60;
@@ -114,7 +121,6 @@ int main(int argc, char **argv) {
         printTemperature(printMat, N, N);
         printf("\n");
     }
-
     // create ghost vectors for the rank communication
     Vector left_temps = createVector(rows_per_rank);
     Vector right_temps = createVector(rows_per_rank);
@@ -159,22 +165,27 @@ int main(int argc, char **argv) {
         if (!(t % 1000)) {
             // Gather all data from all ranks to rank 0
             int elements_per_rank = rows_per_rank*cols_per_rank;
-            A[0] = 278+myRank*5;
+            for(int i = 0; i<elements_per_rank; i++){
+                A[i] = 278+myRank*5;
+            }
+
+
             if (myRank != 0){
-                
                 MPI_Send(A, elements_per_rank, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
             }
             if (myRank == 0) {
-                
                 for(int i = 0; i < elements_per_rank; i++){
-                    printMat[i%cols_per_rank+myRank*elements_per_rank+(i/cols_per_rank)*N] = A[i]; 
+                    int index_in_printMat = calc_index_supermatrix(myRank, N, ranks_per_row, rows_per_rank, cols_per_rank, i);
+                    printMat[index_in_printMat] = A[i]; 
+                    // printf("index in printmat: %d comming from rank %d\n", index_in_printMat ,i);
+                    // printf("wrote into %d from %d\n", i%cols_per_rank+myRank*elements_per_rank+(i/cols_per_rank)*N, i);
                 }
                 Matrix tmp = createMatrix(rows_per_rank, cols_per_rank);
                 for (int i = 1; i<numRanks; i++){
                     MPI_Recv(tmp, elements_per_rank, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, NULL);
-                    printf("receive from: %d\n", i);
                     for(int j = 0; j < elements_per_rank; j++){
-                        printMat[(j%cols_per_rank+i*elements_per_rank+(j/cols_per_rank)*N)] = tmp[j]; 
+                        int index_in_printMat = calc_index_supermatrix(i, N, ranks_per_row, rows_per_rank, cols_per_rank, j);
+                        printMat[index_in_printMat] = tmp[j]; 
                     }
                     
                 }
@@ -241,6 +252,11 @@ int main(int argc, char **argv) {
 // ---------- UTILITIES ----------
 int calc_index(int i, int j, int N) {
     return ((i) * (N) + (j));
+}
+
+// calculates the index in the supermatrix based on the index in the submatrix of a specific rank
+int calc_index_supermatrix(int rank, int N, int ranks_per_row, int rows_per_rank, int cols_per_rank, int index_submatrix){
+    return ((rank / ranks_per_row) * (N * rows_per_rank) + (rank % ranks_per_row) * cols_per_rank) + (index_submatrix % cols_per_rank) + (index_submatrix/cols_per_rank) * cols_per_rank + (index_submatrix/cols_per_rank) * (N-cols_per_rank);
 }
 
 Vector createVector(int N) {

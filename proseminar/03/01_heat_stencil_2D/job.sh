@@ -6,7 +6,7 @@
 # #SBATCH --mail-user=stefan.r.wagner@student.uibk.ac.at,sebastian.bergner@student.uibk.ac.at
 # #SBATCH --mail-type=BEGIN,END,FAIL
 
-#SBATCH --ntasks=12
+#SBATCH --ntasks=96
 
 #SBATCH --exclusive
 
@@ -19,15 +19,15 @@ make --no-print-directory
 
 REP=1
 # PROBLEMS="192 384 768"
-PROBLEMS="36"
+PROBLEMS="192"
 # RANKS="2 6 12 24 48 96"
-RANKS="6"
+RANKS="96"
 
 for i in $(seq 1 $REP); do
     echo ----------------- Iteration $i -----------------
     for N in $PROBLEMS; do
-        echo ./build/heat_stencil_2D_seq $N
-        ./build/heat_stencil_2D_seq $N
+        # echo ./build/heat_stencil_2D_seq $N
+        # ./build/heat_stencil_2D_seq $N
         echo
         for P in $RANKS; do
             echo mpiexec -n $P build/heat_stencil_2D_par_blocking $N
