@@ -19,9 +19,9 @@ make --no-print-directory
 
 REP=1
 # PROBLEMS="192 384 768"
-PROBLEMS="192"
+PROBLEMS="768"
 # RANKS="2 6 12 24 48 96"
-RANKS="2"
+RANKS="96"
 
 for i in $(seq 1 $REP); do
     echo ----------------- Iteration $i -----------------

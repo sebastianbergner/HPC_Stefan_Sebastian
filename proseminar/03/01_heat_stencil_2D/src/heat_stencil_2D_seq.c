@@ -7,8 +7,8 @@
 #include <time.h>
 #include <sys/stat.h>
 
-#define RESOLUTION_WIDTH 50
-#define RESOLUTION_HEIGHT 50
+#define RESOLUTION_WIDTH 48
+#define RESOLUTION_HEIGHT 48
 
 // ---------- MATRIX UTILITIES ----------
 #define IND(i, j) ((i) * (N) + (j))
@@ -88,8 +88,8 @@ int main(int argc, char **argv) {
         A = B;
         B = H;
 
-        // every 1000 steps show intermediate step
-        if (!(t % 1000)) {
+        // every 10000 steps show intermediate step
+        if (!(t % 10000)) {
             printf("Step t=%d\n", t);
             printTemperature(A, N, N);
             printf("\n");
