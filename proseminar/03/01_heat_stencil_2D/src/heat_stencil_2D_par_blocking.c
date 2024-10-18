@@ -118,15 +118,15 @@ int main(int argc, char **argv) {
         printf("\n");
     }
     // create ghost vectors for the rank communication
-    Vector send_left_temps = createVector(rows_per_rank);
-    Vector send_right_temps = createVector(rows_per_rank);
     Vector send_up_temps = createVector(cols_per_rank);
     Vector send_down_temps = createVector(cols_per_rank);
+    Vector send_left_temps = createVector(rows_per_rank);
+    Vector send_right_temps = createVector(rows_per_rank);
 
-    Vector recv_left_temps = createVector(rows_per_rank);
-    Vector recv_right_temps = createVector(rows_per_rank);
-    Vector recv_up_temps = createVector(cols_per_rank);
     Vector recv_down_temps = createVector(cols_per_rank);
+    Vector recv_up_temps = createVector(cols_per_rank);
+    Vector recv_right_temps = createVector(rows_per_rank);
+    Vector recv_left_temps = createVector(rows_per_rank);
 
     // ---------- COMPUTE ----------
     // for each time step ..
@@ -158,29 +158,29 @@ int main(int argc, char **argv) {
         
         // determine neighbors
 
-        int left  = submatrix_col_id ? myRank-1 : MPI_PROC_NULL;
-        int right = submatrix_col_id+1 < ranks_per_row ? myRank+1 : MPI_PROC_NULL;
         int up    = myRank-ranks_per_row >= 0 ? myRank-ranks_per_row : MPI_PROC_NULL;
         int down  = myRank+ranks_per_row < numRanks ? myRank+ranks_per_row : MPI_PROC_NULL;
+        int left  = submatrix_col_id ? myRank-1 : MPI_PROC_NULL;
+        int right = submatrix_col_id+1 < ranks_per_row ? myRank+1 : MPI_PROC_NULL;
         // printf("myrank: %d sending to up %d down %d left %d right %d\n", myRank,up,down, left,right);
 
         // send first right, left, up, down and do so in an alternating pattern (and receive from the non alternating ones)
 
         // alternating down
         
-        // MPI_Sendrecv(send_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, recv_up_temps, cols_per_rank, MPI_DOUBLE, );
+        // MPI_Sendrecv(send_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, recv_down_temps, cols_per_rank, MPI_DOUBLE, );
         //int submatrix_col_id = myRank % ranks_per_row; 
         // int submatrix_row_id = myRank / ranks_per_row; 
 
         if (submatrix_row_id % 2){ // send from even supermatrix cols
             MPI_Send(send_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD);
             MPI_Send(send_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD);
-            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         else {
-            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Send(send_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD);
             MPI_Send(send_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD);
         }
@@ -188,19 +188,15 @@ int main(int argc, char **argv) {
         if (submatrix_col_id % 2){ // send from even supermatrix rows
             MPI_Send(send_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD);
             MPI_Send(send_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD);
-            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         else {
-            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Send(send_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD);
             MPI_Send(send_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD);
         }
-
-
-        
-        // for (int i = 0; i < cols_per_rank; )
 
 
 
@@ -220,6 +216,7 @@ int main(int argc, char **argv) {
                 value_t right_temp = (j != cols_per_rank-1) ? A[calc_index(i, j+1, cols_per_rank)] : (right != MPI_PROC_NULL ? recv_right_temps[i] : current_temp);
                 value_t up_temp = (i != 0) ? A[calc_index(i-1, j, cols_per_rank)] : (up != MPI_PROC_NULL ? recv_up_temps[j] : current_temp);
                 value_t down_temp = (i != rows_per_rank-1) ? A[calc_index(i+1, j, cols_per_rank)] : (down != MPI_PROC_NULL ? recv_down_temps[j] : current_temp);
+                
 
                 B[calc_index(i, j, cols_per_rank)] = current_temp + 1/8.f * (left_temp + right_temp + down_temp + up_temp + (-4 * current_temp));
                 // B[calc_index(i, j, rows_per_rank)] = (left_temp + right_temp + 4*current_temp + down_temp + up_temp)/8;
@@ -278,10 +275,10 @@ int main(int argc, char **argv) {
     releaseVector(send_up_temps);
     releaseVector(send_down_temps);
 
-    releaseVector(recv_left_temps);
     releaseVector(recv_right_temps);
-    releaseVector(recv_up_temps);
+    releaseVector(recv_left_temps);
     releaseVector(recv_down_temps);
+    releaseVector(recv_up_temps);
 
 
 
