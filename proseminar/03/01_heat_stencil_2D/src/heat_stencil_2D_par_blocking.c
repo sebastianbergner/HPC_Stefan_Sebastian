@@ -8,8 +8,8 @@
 #include <mpi.h>
 #include <math.h>
 
-#define RESOLUTION_WIDTH  48
-#define RESOLUTION_HEIGHT 48
+#define RESOLUTION_WIDTH  50
+#define RESOLUTION_HEIGHT 50
 
 // ---------- VECTOR UTILITIES ----------
 typedef double value_t;
