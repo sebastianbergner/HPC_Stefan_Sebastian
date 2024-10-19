@@ -37,9 +37,9 @@ int main(int argc, char* argv[]) {
 	clock_t start = clock();
 	MPI_Init(&argc, &argv); //start mpi
 	// let every process work on their problem (we won't instruct them from the root node 0 only gather the data)
-	int myRank, numProcesses;
+	int my_rank, numProcesses;
 	int insideLocal = 0;
-	MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
+	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &numProcesses);
 
 	if (N < numProcesses){ // otherwise division by 0 below
@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	srand(time(NULL)*myRank);
+	srand(time(NULL)*my_rank);
 
 	int calculations_per_process = N/numProcesses;
 	insideLocal = mc_pi(calculations_per_process);
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 	int insideGlobal = 0;
 	MPI_Reduce(&insideLocal, &insideGlobal, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
-	if (myRank == 0){ // let only one rank do the last step
+	if (my_rank == 0){ // let only one rank do the last step
 		double result = 4.f * insideGlobal / (N-(N%numProcesses)); // correction if N is not fully divisible by numProcesses
 		printf("pi approx with %i points: %f\n", (N-(N%numProcesses)), result);
 		clock_t end = clock();

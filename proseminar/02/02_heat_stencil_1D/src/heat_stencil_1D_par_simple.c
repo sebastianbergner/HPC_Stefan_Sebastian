@@ -11,15 +11,15 @@ typedef double value_t;
 
 // -- vector utilities --
 typedef value_t *Vector;
-Vector createVector(int N);
-void releaseVector(Vector m);
-void printTemperature(Vector m, int N);
+Vector create_vector(int N);
+void release_vector(Vector m);
+void print_temperature(Vector m, int N);
 
 // -- measurment utilities --
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
 #define TYPE "parallel"
-void timings_to_csv(unsigned problem_size, double time, int numRanks);
+void data_to_csv(unsigned problem_size, double time, int num_ranks);
 
 // -- simulation code ---
 int main(int argc, char **argv) {
@@ -34,31 +34,31 @@ int main(int argc, char **argv) {
   int T = N * 500;
 
   MPI_Init(&argc, &argv);
-  int myRank, numRanks;
-  MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-	MPI_Comm_size(MPI_COMM_WORLD, &numRanks);
+  int my_rank, num_ranks;
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);
 
-  if (N % numRanks) {
-    if (myRank == 0)
-      printf("Configuration not possible: N=%d, ranks=%d\n", N, numRanks);
+  if (N % num_ranks) {
+    if (my_rank == 0)
+      printf("Configuration not possible: N=%d, ranks=%d\n", N, num_ranks);
     MPI_Finalize();
     return EXIT_FAILURE;
   }
-  if (myRank == 0)
+  if (my_rank == 0)
     printf("Computing heat-distribution for room size N=%d for T=%d timesteps\n", N, T);
 
   // ---------- setup ----------
 
   // create a buffer for storing temperature fields per rank
-  int vector_size_per_rank = N / numRanks;
+  int vector_size_per_rank = N / num_ranks;
   Vector A = NULL;
   Vector B = NULL;
-  if (myRank == 0) {
-    A = createVector(N);
-    B = createVector(N);
+  if (my_rank == 0) {
+    A = create_vector(N);
+    B = create_vector(N);
   } else {
-    A = createVector(vector_size_per_rank);
-    B = createVector(vector_size_per_rank);
+    A = create_vector(vector_size_per_rank);
+    B = create_vector(vector_size_per_rank);
   }
 
   // set up initial conditions in A
@@ -71,16 +71,16 @@ int main(int argc, char **argv) {
   int source_y = 273 + 60;
 
   int rank_with_source = source_x / vector_size_per_rank;
-  if (myRank == 0) {
+  if (my_rank == 0) {
     A[source_x] = source_y;
   }
-  if (myRank == rank_with_source) {
+  if (my_rank == rank_with_source) {
     A[source_x % vector_size_per_rank] = source_y;
   }
 
-  if (myRank == 0) {
+  if (my_rank == 0) {
     printf("Initial:\t");
-    printTemperature(A, N);
+    print_temperature(A, N);
     printf("\n");
   }
   MPI_Request requests[4];
@@ -90,24 +90,24 @@ int main(int argc, char **argv) {
   for (int t = 0; t < T; t++) {
     // sync with other ranks
     value_t t_left, t_right;
-    if (myRank != 0 && myRank != numRanks-1){ //consider edge cases separatelly
-      MPI_Isend(&A[vector_size_per_rank-1], 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD, &requests[0]); // request is NULLptr as we're waiting in the recv step for all
-      MPI_Isend(&A[0], 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, &requests[1]);
+    if (my_rank != 0 && my_rank != num_ranks-1){ //consider edge cases separatelly
+      MPI_Isend(&A[vector_size_per_rank-1], 1, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD, &requests[0]); // request is NULLptr as we're waiting in the recv step for all
+      MPI_Isend(&A[0], 1, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &requests[1]);
 
-      MPI_Irecv(&t_left, 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, &requests[2]);
-      MPI_Irecv(&t_right, 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD, &requests[3]);
+      MPI_Irecv(&t_left, 1, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &requests[2]);
+      MPI_Irecv(&t_right, 1, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD, &requests[3]);
       
       MPI_Wait(&requests[2], MPI_STATUS_IGNORE);
       MPI_Wait(&requests[3], MPI_STATUS_IGNORE);
     }
-    else if(myRank == 0){ // edge case 1 first rank
-      MPI_Isend(&A[vector_size_per_rank-1], 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD, &requests[0]);
-      MPI_Irecv(&t_right, 1, MPI_DOUBLE, myRank+1, 0, MPI_COMM_WORLD, &requests[1]);
+    else if(my_rank == 0){ // edge case 1 first rank
+      MPI_Isend(&A[vector_size_per_rank-1], 1, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD, &requests[0]);
+      MPI_Irecv(&t_right, 1, MPI_DOUBLE, my_rank+1, 0, MPI_COMM_WORLD, &requests[1]);
       t_left = A[0];
     }
     else{ // edge case 1 last rank
-      MPI_Isend(&A[0], 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, &requests[0]);
-      MPI_Irecv(&t_left, 1, MPI_DOUBLE, myRank-1, 0, MPI_COMM_WORLD, &requests[1]);
+      MPI_Isend(&A[0], 1, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &requests[0]);
+      MPI_Irecv(&t_left, 1, MPI_DOUBLE, my_rank-1, 0, MPI_COMM_WORLD, &requests[1]);
       t_right = A[vector_size_per_rank-1];
     }
     // pre-calc syncing done
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
     // .. we propagate the temperature
     for (long long i = 0; i < vector_size_per_rank; i++) {
       // center stays constant (the heat is still on)
-      if (myRank == rank_with_source && i == (source_x%vector_size_per_rank)) {
+      if (my_rank == rank_with_source && i == (source_x%vector_size_per_rank)) {
         B[i] = A[i];
         continue;
       }
@@ -144,28 +144,28 @@ int main(int argc, char **argv) {
       // now we have to gather all data in rank 0
       MPI_Gather(A, vector_size_per_rank, MPI_DOUBLE, A, vector_size_per_rank, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-      if (myRank == 0){
+      if (my_rank == 0){
         printf("Step t=%d:\t", t);
-        printTemperature(A, N);
+        print_temperature(A, N);
         printf("\n");
       }
     }
   }
 
-  releaseVector(B);
+  release_vector(B);
   int success = 1;
   // last sync
   MPI_Gather(A, vector_size_per_rank, MPI_DOUBLE, A, vector_size_per_rank, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  if (myRank == 0){
+  if (my_rank == 0){
     // measure time
     clock_t end = clock();
     double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-    timings_to_csv(N, total_time, numRanks);
+    data_to_csv(N, total_time, num_ranks);
 
     // ---------- check ----------
 
     printf("Final:\t\t");
-    printTemperature(A, N);
+    print_temperature(A, N);
     printf("\n");
 
     
@@ -183,21 +183,21 @@ int main(int argc, char **argv) {
 
   // ---------- cleanup ----------
 
-  releaseVector(A);
+  release_vector(A);
 
   MPI_Finalize();
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-Vector createVector(int N) {
+Vector create_vector(int N) {
   // create data and index vector
   return malloc(sizeof(value_t) * N);
 }
 
-void releaseVector(Vector m) { free(m); }
+void release_vector(Vector m) { free(m); }
 
-void printTemperature(Vector m, int N) {
+void print_temperature(Vector m, int N) {
   const char *colors = " .-:=+*^X#%@";
   const int numColors = 12;
 
@@ -234,7 +234,7 @@ void printTemperature(Vector m, int N) {
   printf("X");
 }
 
-void timings_to_csv(unsigned problem_size, double time, int numRanks) {
+void data_to_csv(unsigned problem_size, double time, int num_ranks) {
 	FILE* fpt;
 	int set_header = 0;
   char full_filepath[1024];
@@ -243,6 +243,6 @@ void timings_to_csv(unsigned problem_size, double time, int numRanks) {
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
 	if(set_header) fprintf(fpt, "Impl/Ranks,Problem Size,Time\n");
-	fprintf(fpt, "par_simple/%d,%u,%.9f\n", numRanks, problem_size, time);
+	fprintf(fpt, "par_simple/%d,%u,%.9f\n", num_ranks, problem_size, time);
 	fclose(fpt);
 }

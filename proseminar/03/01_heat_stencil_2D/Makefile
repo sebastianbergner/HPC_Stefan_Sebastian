@@ -8,7 +8,7 @@ all: heat_stencil_2D_seq heat_stencil_2D_par_blocking heat_stencil_2D_par_non_bl
 
 heat_stencil_2D_seq: src/heat_stencil_2D_seq.c  
 	@mkdir -p build
-	@$(CC) $(CFLAGS) $< -o build/heat_stencil_2D_seq -lm
+	@$(CC) $(CFLAGS) $< -o build/heat_stencil_2D_seq
 
 heat_stencil_2D_par_blocking: src/heat_stencil_2D_par_blocking.c
 	@mkdir -p build

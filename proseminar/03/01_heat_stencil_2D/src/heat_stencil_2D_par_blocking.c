@@ -8,30 +8,34 @@
 #include <mpi.h>
 #include <math.h>
 
-#define RESOLUTION_WIDTH  50
-#define RESOLUTION_HEIGHT 50
+// ---------- PRINTING UTILITIES ----------
+#define RESOLUTION_WIDTH  48
+#define RESOLUTION_HEIGHT 48
+
+// ---------- MPI UTILITIES ----------
+#define MPI_TAG 0
 
 // ---------- VECTOR UTILITIES ----------
 typedef double value_t;
 typedef value_t *Vector;
-Vector createVector(int N);
-void releaseVector(Vector m);
+Vector create_vector(int N);
+void release_vector(Vector m);
 
 // ---------- MATRIX UTILITIES ----------
 int calc_index(int i, int j, int N);
 int calc_index_supermatrix(int rank, int N, int ranks_per_row, int rows_per_rank, int cols_per_rank, int index_submatrix);
 typedef value_t *Matrix;
-Matrix createMatrix(int N, int M);
-void calc_rank_factors(int numRanks, int *ranks_per_row, int *ranks_per_col);
-void releaseMatrix(Matrix m);
-void gather_data_from_submatrices(Matrix submatrix, Matrix supermatrix, int myRank, int numRanks, int rows_per_rank, int cols_per_rank, int ranks_per_row, int N);
-void printTemperature(double *m, int N, int M);
+Matrix create_matrix(int N, int M);
+void calc_rank_factors(int num_ranks, int *ranks_per_row, int *ranks_per_col);
+void release_matrix(Matrix m);
+void gather_data_from_submatrices(Matrix submatrix, Matrix supermatrix, int my_rank, int num_ranks, int rows_per_rank, int cols_per_rank, int ranks_per_row, int N);
+void print_temperature(double *m, int N, int M);
 
 // ---------- MEASUREMENT UTILITIES ----------
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
 #define TYPE "par_block"
-void timings_to_csv(int problem_size, double time, int numRanks);
+void data_to_csv(int problem_size, double time, int num_ranks);
 
 // ---------- SIMULATION CODE ----------
 int main(int argc, char **argv) {
@@ -47,50 +51,45 @@ int main(int argc, char **argv) {
 
     // ---------- MPI INIT ----------
     MPI_Init(&argc, &argv);
-    int myRank, numRanks;
-    MPI_Comm_rank(MPI_COMM_WORLD, &myRank);
-	MPI_Comm_size(MPI_COMM_WORLD, &numRanks);
+    int my_rank, num_ranks;
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);
 
-    if (N % numRanks) {
-        printf("Configuration not possible: N=%d %% ranks=%d != 0\n", N, numRanks);
+    if (N % num_ranks) {
+        printf("Configuration not possible: N=%d %% ranks=%d != 0\n", N, num_ranks);
         MPI_Finalize();
         return EXIT_FAILURE;
     }
 
     // ---------- SETUP ----------
-    // calculate rank factors: ranks_per_row x ranks_per_col = numRanks
+    // calculate rank factors: ranks_per_row x ranks_per_col = num_ranks
     int ranks_per_row = 0;
     int ranks_per_col = 0;
-    calc_rank_factors(numRanks, &ranks_per_row, &ranks_per_col);
+    calc_rank_factors(num_ranks, &ranks_per_row, &ranks_per_col);
     int rows_per_rank = N / ranks_per_col;
     int cols_per_rank = N / ranks_per_row;
 
-    int submatrix_col_id = myRank % ranks_per_row; 
-    int submatrix_row_id = myRank / ranks_per_row; 
+    int submatrix_col_id = my_rank % ranks_per_row; 
+    int submatrix_row_id = my_rank / ranks_per_row; 
 
-    if (myRank == 0) {
+    if (my_rank == 0) {
         printf("Computing heat-distribution for room size %dX%d for T=%d timesteps\n", N, N, T);
-        printf("Room is distributed across %d processes, each handling a sub-room of size %dX%d\n", numRanks, rows_per_rank, cols_per_rank);
+        printf("Room is distributed across %d processes, each handling a sub-room of size %dX%d\n", num_ranks, rows_per_rank, cols_per_rank);
     }
 
     // create a matrix for storing temperature fields
-    Matrix A = NULL;
+    Matrix A = create_matrix(rows_per_rank, cols_per_rank);
     // create a second matrix for the computation
-    Matrix B = NULL;
+    Matrix B = create_matrix(rows_per_rank, cols_per_rank);
     // create a third matrix for print/verification aggregation
-    Matrix printMat = NULL;
-
-    if (myRank == 0) {
-        printMat = createMatrix(N, N);
+    Matrix print_matrix = NULL;
+    if (my_rank == 0) {
+        print_matrix = create_matrix(N, N);
         for (int i = 0; i < N*N; i++) {
-           printMat[i] = 273;
+           print_matrix[i] = 273;
         }
     }
-
-    A = createMatrix(rows_per_rank, cols_per_rank);
-    B = createMatrix(rows_per_rank, cols_per_rank);
     
-
     // set up initial conditions in A
     for (int i = 0; i < rows_per_rank*cols_per_rank; i++) {
         A[i] = 273; // temperature is 0° C everywhere (273 K)
@@ -104,29 +103,30 @@ int main(int argc, char **argv) {
     int block_col = source_j / cols_per_rank;
     int rank_with_source = block_row * ranks_per_row + block_col;
 
-    if (myRank == 0) {
-        printMat[calc_index(source_i, source_j, N)] = 273 + 60;
+    if (my_rank == 0) {
+        print_matrix[calc_index(source_i, source_j, N)] = 273 + 60;
     }
-    if (myRank == rank_with_source) {
+    if (my_rank == rank_with_source) {
         A[calc_index(source_i % rows_per_rank, source_j % cols_per_rank, cols_per_rank)] = 273 + 60;
     }
 
-    if (myRank == 0) {
+    if (my_rank == 0) {
         printf("Initial:\n");
-        printTemperature(printMat, N, N);
+        print_temperature(print_matrix, N, N);
         printf("\n");
     }
+
     // create send ghost vectors for the rank communication
-    Vector send_up_temps = createVector(cols_per_rank);
-    Vector send_down_temps = createVector(cols_per_rank);
-    Vector send_left_temps = createVector(rows_per_rank);
-    Vector send_right_temps = createVector(rows_per_rank);
+    Vector send_up_temps = create_vector(cols_per_rank);
+    Vector send_down_temps = create_vector(cols_per_rank);
+    Vector send_left_temps = create_vector(rows_per_rank);
+    Vector send_right_temps = create_vector(rows_per_rank);
     
     // create recv ghost vectors for the rank communication
-    Vector recv_down_temps = createVector(cols_per_rank);
-    Vector recv_up_temps = createVector(cols_per_rank);
-    Vector recv_right_temps = createVector(rows_per_rank);
-    Vector recv_left_temps = createVector(rows_per_rank);
+    Vector recv_down_temps = create_vector(cols_per_rank);
+    Vector recv_up_temps = create_vector(cols_per_rank);
+    Vector recv_right_temps = create_vector(rows_per_rank);
+    Vector recv_left_temps = create_vector(rows_per_rank);
 
     // ---------- COMPUTE ----------
     // for each time step ..
@@ -146,43 +146,43 @@ int main(int argc, char **argv) {
         }
         
         // determine neighbors
-        int up    = (myRank-ranks_per_row >= 0) ? myRank-ranks_per_row : MPI_PROC_NULL;
-        int down  = myRank+ranks_per_row < numRanks ? myRank+ranks_per_row : MPI_PROC_NULL;
-        int left  = submatrix_col_id ? myRank-1 : MPI_PROC_NULL;
-        int right = submatrix_col_id+1 < ranks_per_row ? myRank+1 : MPI_PROC_NULL;
+        int up    = (my_rank-ranks_per_row >= 0) ? my_rank-ranks_per_row : MPI_PROC_NULL;
+        int down  = my_rank+ranks_per_row < num_ranks ? my_rank+ranks_per_row : MPI_PROC_NULL;
+        int left  = submatrix_col_id ? my_rank-1 : MPI_PROC_NULL;
+        int right = submatrix_col_id+1 < ranks_per_row ? my_rank+1 : MPI_PROC_NULL;
 
-        // TODO: comment
-        if (submatrix_row_id % 2){ // send from even supermatrix cols
-            MPI_Send(send_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD);
-            MPI_Send(send_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD);
-            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        // send and receive up and down ghost cells
+        if (submatrix_row_id % 2) {
+            MPI_Send(send_up_temps, cols_per_rank, MPI_DOUBLE, up, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(send_down_temps, cols_per_rank, MPI_DOUBLE, down, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, down, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, up, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         else {
-            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Send(send_up_temps, cols_per_rank, MPI_DOUBLE, up, 0, MPI_COMM_WORLD);
-            MPI_Send(send_down_temps, cols_per_rank, MPI_DOUBLE, down, 0, MPI_COMM_WORLD);
+            MPI_Recv(recv_down_temps, cols_per_rank, MPI_DOUBLE, down, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_up_temps, cols_per_rank, MPI_DOUBLE, up, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Send(send_up_temps, cols_per_rank, MPI_DOUBLE, up, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(send_down_temps, cols_per_rank, MPI_DOUBLE, down, MPI_TAG, MPI_COMM_WORLD);
         }
 
-        // TODO: comments
-        if (submatrix_col_id % 2){ // send from even supermatrix rows
-            MPI_Send(send_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD);
-            MPI_Send(send_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD);
-            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        // send and receive left and right ghost cells
+        if (submatrix_col_id % 2) {
+            MPI_Send(send_left_temps, rows_per_rank, MPI_DOUBLE, left, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(send_right_temps, rows_per_rank, MPI_DOUBLE, right, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, right, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, left, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         else {
-            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Send(send_left_temps, rows_per_rank, MPI_DOUBLE, left, 0, MPI_COMM_WORLD);
-            MPI_Send(send_right_temps, rows_per_rank, MPI_DOUBLE, right, 0, MPI_COMM_WORLD);
+            MPI_Recv(recv_right_temps, rows_per_rank, MPI_DOUBLE, right, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(recv_left_temps, rows_per_rank, MPI_DOUBLE, left, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Send(send_left_temps, rows_per_rank, MPI_DOUBLE, left, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(send_right_temps, rows_per_rank, MPI_DOUBLE, right, MPI_TAG, MPI_COMM_WORLD);
         }
 
         // .. we propagate the temperature
         for (int i = 0; i < rows_per_rank; i++) {
             for (int j = 0; j < cols_per_rank; j++) {
-                if(myRank == rank_with_source && (i == (source_i % rows_per_rank)) && (j == (source_j % cols_per_rank))){
+                if(my_rank == rank_with_source && (i == (source_i % rows_per_rank)) && (j == (source_j % cols_per_rank))){
                     B[calc_index(i, j, cols_per_rank)] = A[calc_index(i, j, cols_per_rank)];
                     continue;
                 }
@@ -197,7 +197,6 @@ int main(int argc, char **argv) {
                 value_t down_temp = (i != rows_per_rank-1) ? A[calc_index(i+1, j, cols_per_rank)] : (down != MPI_PROC_NULL ? recv_down_temps[j] : current_temp);
                 
                 B[calc_index(i, j, cols_per_rank)] = current_temp + 1/8.f * (left_temp + right_temp + down_temp + up_temp + (-4 * current_temp));
-                // B[calc_index(i, j, rows_per_rank)] = (left_temp + right_temp + 4*current_temp + down_temp + up_temp)/8;
             }
         }
 
@@ -209,51 +208,49 @@ int main(int argc, char **argv) {
         // every 10000 steps show intermediate step
         if (!(t % 10000)) {
             // Gather all data from all ranks to rank 0
-            gather_data_from_submatrices(A, printMat, myRank, numRanks, rows_per_rank, cols_per_rank, ranks_per_row, N);
+            gather_data_from_submatrices(A, print_matrix, my_rank, num_ranks, rows_per_rank, cols_per_rank, ranks_per_row, N);
 
-            if (myRank == 0) {
+            if (my_rank == 0) {
                 printf("Step t=%d\n", t);
-                printTemperature(printMat, N, N);
+                print_temperature(print_matrix, N, N);
                 printf("\n");
             }
         }
     }
 
     // cleanup resources of computation
-    releaseMatrix(B);
-    releaseVector(send_left_temps);
-    releaseVector(send_right_temps);
-    releaseVector(send_up_temps);
-    releaseVector(send_down_temps);
+    release_matrix(B);
+    release_vector(send_left_temps);
+    release_vector(send_right_temps);
+    release_vector(send_up_temps);
+    release_vector(send_down_temps);
 
-    releaseVector(recv_right_temps);
-    releaseVector(recv_left_temps);
-    releaseVector(recv_down_temps);
-    releaseVector(recv_up_temps);
-
-
+    release_vector(recv_right_temps);
+    release_vector(recv_left_temps);
+    release_vector(recv_down_temps);
+    release_vector(recv_up_temps);
 
     // ---------- FINAL RESULT ----------
     int success = 1;
 
     // Gather all data from all ranks to rank 0
-    gather_data_from_submatrices(A, printMat, myRank, numRanks, rows_per_rank, cols_per_rank, ranks_per_row, N);
+    gather_data_from_submatrices(A, print_matrix, my_rank, num_ranks, rows_per_rank, cols_per_rank, ranks_per_row, N);
 
-    if (myRank == 0)  {
+    if (my_rank == 0)  {
         printf("Final:\n");
-        printTemperature(printMat, N, N);
+        print_temperature(print_matrix, N, N);
         printf("\n");
 
         // ---------- STOP CLOCK ----------
         clock_t end = clock();
         double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-        timings_to_csv(N, total_time, numRanks);
+        data_to_csv(N, total_time, num_ranks);
 
         // ---------- VERIFICATION ----------
         // simple verification if nowhere the heat is more then the heat source
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
-                double temp = printMat[calc_index(i, j, N)];
+                double temp = print_matrix[calc_index(i, j, N)];
                 if (273 <= temp && temp <= 273 + 60) {
                     continue;
                 }
@@ -263,15 +260,14 @@ int main(int argc, char **argv) {
         }
         printf("Verification: %s\n", (success) ? "OK" : "FAILED");
         printf("Wall Clock Time = %f seconds\n", total_time);
-        releaseMatrix(printMat); //only rank 0 possesses this mat
+        release_matrix(print_matrix); //only rank 0 possesses this mat
     }
 
     // ---------- CLEANUP ----------
-    releaseMatrix(A);
+    release_matrix(A);
     
     MPI_Finalize();
-    // return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
-    return 0;
+    return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 // ---------- UTILITIES ----------
@@ -284,60 +280,56 @@ int calc_index_supermatrix(int rank, int N, int ranks_per_row, int rows_per_rank
     return ((rank / ranks_per_row) * (N * rows_per_rank) + (rank % ranks_per_row) * cols_per_rank) + (index_submatrix % cols_per_rank) + (index_submatrix/cols_per_rank) * cols_per_rank + (index_submatrix/cols_per_rank) * (N-cols_per_rank);
 }
 
-Vector createVector(int N) {
+Vector create_vector(int N) {
   // create data and index vector
-  Vector v = malloc(sizeof(value_t) * N);
-  for (int i = 0; i < N; i++) {
-    v[i] = 10;
-  }
-  return v;
+  return malloc(sizeof(value_t) * N);
 }
 
-void releaseVector(Vector m) { free(m); }
+void release_vector(Vector m) { free(m); }
 
-Matrix createMatrix(int N, int M) {
+Matrix create_matrix(int N, int M) {
   // create data and index matrix
   return malloc(sizeof(value_t) * N * M);
 }
 
-void calc_rank_factors(int numRanks, int *ranks_per_row, int *ranks_per_col) {
-    // find ranks_per_row x ranks_per_col == numRanks
-    // best result would be sqrt(numRanks) x sqrt(numRanks) == numRanks
+void calc_rank_factors(int num_ranks, int *ranks_per_row, int *ranks_per_col) {
+    // find ranks_per_row x ranks_per_col == num_ranks
+    // best result would be sqrt(num_ranks) x sqrt(num_ranks) == num_ranks
     // otherwise find almost evenly squared matrices
-    for (*ranks_per_row = (int)sqrt(numRanks); *ranks_per_row >= 1; (*ranks_per_row)--) {
-        if (numRanks % *ranks_per_row == 0) {
-            *ranks_per_col = numRanks / *ranks_per_row;
+    for (*ranks_per_row = (int)sqrt(num_ranks); *ranks_per_row >= 1; (*ranks_per_row)--) {
+        if (num_ranks % *ranks_per_row == 0) {
+            *ranks_per_col = num_ranks / *ranks_per_row;
             break;
         }
     }
 }
 
-void releaseMatrix(Matrix m) { free(m); }
+void release_matrix(Matrix m) { free(m); }
 
-void gather_data_from_submatrices(Matrix submatrix, Matrix supermatrix, int myRank, int numRanks, int rows_per_rank, int cols_per_rank, int ranks_per_row, int N) {
+void gather_data_from_submatrices(Matrix submatrix, Matrix supermatrix, int my_rank, int num_ranks, int rows_per_rank, int cols_per_rank, int ranks_per_row, int N) {
     int elements_per_rank = rows_per_rank*cols_per_rank;
 
-    if (myRank != 0){
-        MPI_Send(submatrix, elements_per_rank, MPI_DOUBLE, 0, 0, MPI_COMM_WORLD);
+    if (my_rank != 0) {
+        MPI_Send(submatrix, elements_per_rank, MPI_DOUBLE, 0, MPI_TAG, MPI_COMM_WORLD);
     }
-    if (myRank == 0) {
+    if (my_rank == 0) {
         for(int i = 0; i < elements_per_rank; i++){
-            int index_in_target = calc_index_supermatrix(myRank, N, ranks_per_row, rows_per_rank, cols_per_rank, i);
+            int index_in_target = calc_index_supermatrix(my_rank, N, ranks_per_row, rows_per_rank, cols_per_rank, i);
             supermatrix[index_in_target] = submatrix[i]; 
         }
-        Matrix tmp = createMatrix(rows_per_rank, cols_per_rank);
-        for (int i = 1; i<numRanks; i++){
-            MPI_Recv(tmp, elements_per_rank, MPI_DOUBLE, i, 0, MPI_COMM_WORLD, NULL);
+        Matrix tmp = create_matrix(rows_per_rank, cols_per_rank);
+        for (int i = 1; i < num_ranks; i++){
+            MPI_Recv(tmp, elements_per_rank, MPI_DOUBLE, i, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             for(int j = 0; j < elements_per_rank; j++){
                 int index_in_target = calc_index_supermatrix(i, N, ranks_per_row, rows_per_rank, cols_per_rank, j);
                 supermatrix[index_in_target] = tmp[j]; 
             }
         }
-        releaseMatrix(tmp);
+        release_matrix(tmp);
     }
 }
 
-void printTemperature(double *m, int N, int M) {
+void print_temperature(double *m, int N, int M) {
     const char *colors = " .-:=+*^X#%@";
     const int numColors = 12;
 
@@ -392,7 +384,7 @@ void printTemperature(double *m, int N, int M) {
     printf("\n");
 }
 
-void timings_to_csv(int problem_size, double time, int numRanks) {
+void data_to_csv(int problem_size, double time, int num_ranks) {
     FILE* fpt;
     int set_header = 0;
     char full_filepath[1024];
@@ -401,6 +393,6 @@ void timings_to_csv(int problem_size, double time, int numRanks) {
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
 	if(set_header) fprintf(fpt, "Impl/Ranks,Problem Size,Time\n");
-	fprintf(fpt, "%s/%d,%u,%.9f\n", TYPE, numRanks, problem_size, time);
+	fprintf(fpt, "%s/%d,%u,%.9f\n", TYPE, num_ranks, problem_size, time);
 	fclose(fpt);
 }
