@@ -10,14 +10,14 @@ typedef double value_t;
 
 // -- vector utilities --
 typedef value_t *Vector;
-Vector createVector(int N);
-void releaseVector(Vector m);
-void printTemperature(Vector m, int N);
+Vector create_vector(int N);
+void release_vector(Vector m);
+void print_temperature(Vector m, int N);
 
 // -- measurment utilities --
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
-void timings_to_csv(unsigned problem_size, double time, int numRanks);
+void data_to_csv(unsigned problem_size, double time, int num_ranks);
 
 // -- simulation code ---
 int main(int argc, char **argv) {
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
   // ---------- setup ----------
 
   // create a buffer for storing temperature fields
-  Vector A = createVector(N);
+  Vector A = create_vector(N);
 
   // set up initial conditions in A
   for (int i = 0; i < N; i++) {
@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
   A[source_x] = 273 + 60;
 
   printf("Initial:\t");
-  printTemperature(A, N);
+  print_temperature(A, N);
   printf("\n");
 
   // ---------- compute ----------
 
   // create a second buffer for the computation
-  Vector B = createVector(N);
+  Vector B = create_vector(N);
 
   // for each time step ..
   for (int t = 0; t < T; t++) {
@@ -82,22 +82,22 @@ int main(int argc, char **argv) {
     // show intermediate step
     if (!(t % 10000)) {
       printf("Step t=%d:\t", t);
-      printTemperature(A, N);
+      print_temperature(A, N);
       printf("\n");
     }
   }
 
-  releaseVector(B);
+  release_vector(B);
 
   // measure time
   clock_t end = clock();
   double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-	timings_to_csv(N, total_time, 1);
+	data_to_csv(N, total_time, 1);
 
   // ---------- check ----------
 
   printf("Final:\t\t");
-  printTemperature(A, N);
+  print_temperature(A, N);
   printf("\n");
 
   int success = 1;
@@ -114,20 +114,20 @@ int main(int argc, char **argv) {
 
   // ---------- cleanup ----------
 
-  releaseVector(A);
+  release_vector(A);
 
   // done
   return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-Vector createVector(int N) {
+Vector create_vector(int N) {
   // create data and index vector
   return malloc(sizeof(value_t) * N);
 }
 
-void releaseVector(Vector m) { free(m); }
+void release_vector(Vector m) { free(m); }
 
-void printTemperature(Vector m, int N) {
+void print_temperature(Vector m, int N) {
   const char *colors = " .-:=+*^X#%@";
   const int numColors = 12;
 
@@ -164,7 +164,7 @@ void printTemperature(Vector m, int N) {
   printf("X");
 }
 
-void timings_to_csv(unsigned problem_size, double time, int numRanks) {
+void data_to_csv(unsigned problem_size, double time, int num_ranks) {
 	FILE* fpt;
 	int set_header = 0;
   char full_filepath[1024];
@@ -173,6 +173,6 @@ void timings_to_csv(unsigned problem_size, double time, int numRanks) {
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
 	if(set_header) fprintf(fpt, "Impl/Ranks,Problem Size,Time\n");
-	fprintf(fpt, "seq/%d,%u,%.9f\n", numRanks, problem_size, time);
+	fprintf(fpt, "seq/%d,%u,%.9f\n", num_ranks, problem_size, time);
 	fclose(fpt);
 }

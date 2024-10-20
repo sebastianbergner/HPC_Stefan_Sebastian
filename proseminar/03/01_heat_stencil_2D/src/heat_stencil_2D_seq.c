@@ -7,22 +7,23 @@
 #include <time.h>
 #include <sys/stat.h>
 
-#define RESOLUTION_WIDTH 50
-#define RESOLUTION_HEIGHT 50
+// ---------- PRINTING UTILITIES ----------
+#define RESOLUTION_WIDTH  48
+#define RESOLUTION_HEIGHT 48
 
 // ---------- MATRIX UTILITIES ----------
 #define IND(i, j) ((i) * (N) + (j))
 typedef double value_t;
 typedef value_t *Matrix;
-Matrix createMatrix(int N, int M);
-void releaseMatrix(Matrix m);
-void printTemperature(double *m, int N, int M);
+Matrix create_matrix(int N, int M);
+void release_matrix(Matrix m);
+void print_temperature(double *m, int N, int M);
 
 // ---------- MEASUREMENT UTILITIES ----------
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
 #define TYPE "seq"
-void timings_to_csv(int problem_size, double time, int numRanks);
+void data_to_csv(int problem_size, double time, int num_ranks);
 
 // ---------- SIMULATION CODE ----------
 int main(int argc, char **argv) {
@@ -32,16 +33,15 @@ int main(int argc, char **argv) {
         N = atoi(argv[1]);
     }
     int T = N * 100;
-    printf("Computing heat-distribution for room size %dX%d for T=%d timesteps\n", N, N, T);
 
     // ---------- START CLOCK ----------
     clock_t start = clock();
 
     // ---------- SETUP ----------
     // create a matrix for storing temperature fields
-    Matrix A = createMatrix(N, N);
+    Matrix A = create_matrix(N, N);
     // create a second matrix for the computation
-    Matrix B = createMatrix(N, N);
+    Matrix B = create_matrix(N, N);
     // set up initial conditions in A
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
@@ -54,8 +54,9 @@ int main(int argc, char **argv) {
     int source_y = N / 4;
     A[IND(source_x,source_y)] = 273 + 60;
 
-    printf("Initial:");
-    printTemperature(A, N, N);
+    printf("Computing heat-distribution for room size %dX%d for T=%d timesteps\n", N, N, T);
+    printf("Initial:\n");
+    print_temperature(A, N, N);
     printf("\n");
 
     // ---------- COMPUTE ----------
@@ -78,11 +79,7 @@ int main(int argc, char **argv) {
                 value_t up_temp = (i != 0) ? A[IND(i-1, j)] : current_temp;
                 value_t down_temp = (i != N-1) ? A[IND(i+1, j)] : current_temp;
 
-                // faster???
-                B[IND(i,j)] = (left_temp + right_temp + 4*current_temp + down_temp + up_temp)/8;
-                
-                // B[IND(i,j)] = current_temp + 1/8.f * (left_temp + right_temp + down_temp + up_temp + (-4 * current_temp));
-
+                B[IND(i,j)] = current_temp + 1/8.f * (left_temp + right_temp + down_temp + up_temp + (-4 * current_temp));
             }
         }
 
@@ -91,25 +88,25 @@ int main(int argc, char **argv) {
         A = B;
         B = H;
 
-        // every 1000 steps show intermediate step
-        if (!(t % 1000)) {
+        // every 10000 steps show intermediate step
+        if (!(t % 10000)) {
             printf("Step t=%d\n", t);
-            printTemperature(A, N, N);
+            print_temperature(A, N, N);
             printf("\n");
         }
     }
 
-    releaseMatrix(B);
+    release_matrix(B);
 
     // ---------- FINAL RESULT ----------
-    printf("Final:");
-    printTemperature(A, N, N);
+    printf("Final:\n");
+    print_temperature(A, N, N);
     printf("\n");
 
     // ---------- STOP CLOCK ----------
     clock_t end = clock();
     double total_time = ((double)(end - start)) / CLOCKS_PER_SEC;
-    timings_to_csv(N, total_time, 1);
+    data_to_csv(N, total_time, 1);
 
     // ---------- VERIFICATION ----------
     // simple verification if nowhere the heat is more then the heat source
@@ -126,21 +123,22 @@ int main(int argc, char **argv) {
     }
 
     printf("Verification: %s\n", (success) ? "OK" : "FAILED");
+    printf("Wall Clock Time = %f seconds\n", total_time);
 
     // ---------- CLEANUP ----------
-    releaseMatrix(A);
+    release_matrix(A);
     return (success) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 // ---------- UTILITIES ----------
-Matrix createMatrix(int N, int M) {
+Matrix create_matrix(int N, int M) {
   // create data and index matrix
   return malloc(sizeof(value_t) * N * M);
 }
 
-void releaseMatrix(Matrix m) { free(m); }
+void release_matrix(Matrix m) { free(m); }
 
-void printTemperature(double *m, int N, int M) {
+void print_temperature(double *m, int N, int M) {
     const char *colors = " .-:=+*^X#%@";
     const int numColors = 12;
 
@@ -195,7 +193,7 @@ void printTemperature(double *m, int N, int M) {
     printf("\n");
 }
 
-void timings_to_csv(int problem_size, double time, int numRanks) {
+void data_to_csv(int problem_size, double time, int num_ranks) {
     FILE* fpt;
     int set_header = 0;
     char full_filepath[1024];
@@ -204,6 +202,6 @@ void timings_to_csv(int problem_size, double time, int numRanks) {
 	if(access(full_filepath, F_OK) != 0) set_header = 1;
 	fpt = fopen(full_filepath, "a+");
 	if(set_header) fprintf(fpt, "Impl/Ranks,Problem Size,Time\n");
-	fprintf(fpt, "%s/%d,%u,%.9f\n", TYPE, numRanks, problem_size, time);
+	fprintf(fpt, "%s/%d,%u,%.9f\n", TYPE, num_ranks, problem_size, time);
 	fclose(fpt);
 }
