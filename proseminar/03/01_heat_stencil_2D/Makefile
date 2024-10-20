@@ -22,7 +22,7 @@ clean_all:
 
 run:
 	rm -rf build output
-	sbatch job.sh
+	./run.sh
 
 process_data:
 	module load Anaconda3/2023.10/python-3.11.5-anaconda-2023.10 && python3 src/process_data.py output/measurements.csv

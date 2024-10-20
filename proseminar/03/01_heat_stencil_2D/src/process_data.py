@@ -63,6 +63,7 @@ def create_plots(processed_csv, repetitions):
     ax.set_title(f'Wall Time (Mean) - {repetitions} Repetitions')
     ax.set_xlabel('Impl/Ranks')
     ax.set_ylabel('Time (log scale)')
+    ax.tick_params(axis='x', rotation=45)
     plt.tight_layout()
     plt.savefig(f"{processed_csv.replace('_processed.csv', '_wall_time.png')}")
     plt.close()
@@ -73,6 +74,7 @@ def create_plots(processed_csv, repetitions):
     ax.set_title(f'Speedup - {repetitions} Repetitions')
     ax.set_xlabel('Impl/Ranks')
     ax.set_ylabel('Speedup')
+    ax.tick_params(axis='x', rotation=45)
     plt.tight_layout()
     plt.savefig(f"{processed_csv.replace('_processed.csv', '_speedup.png')}")
     plt.close()
@@ -83,6 +85,7 @@ def create_plots(processed_csv, repetitions):
     ax.set_title(f'Efficiency - {repetitions} Repetitions')
     ax.set_xlabel('Impl/Ranks')
     ax.set_ylabel('Efficiency')
+    ax.tick_params(axis='x', rotation=45)
     plt.tight_layout()
     plt.savefig(f"{processed_csv.replace('_processed.csv', '_efficiency.png')}")
     plt.close()
@@ -94,7 +97,6 @@ def create_latex_table(df, latex_output_file):
 
     with open(latex_output_file, 'w') as f:
         # Begin LaTeX table
-        f.write("\\begin{table}[]\n")
         f.write("\\begin{tabular}{|" + "l" + "l" * (4 * len(unique_problem_sizes)) + "|}\n")
         f.write("\\hline\n")
         f.write("\\multicolumn{" + str(4 * len(unique_problem_sizes) + 1) + "}{|c|}{\\textbf{Results of 2D Heat Stencil Execution}} \\\\ \\hline\n")
@@ -133,7 +135,6 @@ def create_latex_table(df, latex_output_file):
 
         # End LaTeX table
         f.write("\\end{tabular}\n")
-        f.write("\\end{table}\n")
 
     print(f'LaTeX table saved to {latex_output_file}')
 
