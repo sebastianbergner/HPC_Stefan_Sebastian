@@ -1,0 +1,6 @@
+improve performance of seq
+    - using convolution (with fft O(n log n))
+    - using separable filtering convolution (2x 1d convolution)
+
+improve performance of par
+    - rearange blocks to have multiple ranks per column to avoid sending 4 vectors and avoid many cache misses (also for sending)

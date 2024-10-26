@@ -1,0 +1,16 @@
+Impl/Ranks,Problem Size,Time
+seq/1,384,99.938661000
+seq_modaccess/1,384,88.658421000
+par_block/6,384,123.116232000
+par_block_slice/6,384,95.940935000
+par_block_slice_modaccess/6,384,29.651231000
+seq/1,384,100.407757000
+seq_modaccess/1,384,89.054004000
+par_block/6,384,123.227906000
+par_block_slice/6,384,109.252264000
+par_block_slice_modaccess/6,384,29.481266000
+seq/1,384,22.296545000
+seq/1,384,22.135425000
+par_block/6,384,6.673801000
+par_block_slice/6,384,7.329712000
+par_block_slice_modaccess/6,384,7.017355000
