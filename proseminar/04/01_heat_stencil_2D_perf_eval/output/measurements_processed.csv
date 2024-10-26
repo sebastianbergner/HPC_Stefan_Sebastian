@@ -1,0 +1,4 @@
+Impl/Ranks,Problem Size,Repetitions,Time_mean,Time_std,Speedup,Efficiency
+seq/1,384,5,54.7,41.33,1.0,1.0
+par_block/6,384,5,43.36,49.53,1.26,0.21
+par_non_block/6,384,5,42.34,49.14,1.29,0.22

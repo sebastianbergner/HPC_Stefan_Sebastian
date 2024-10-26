@@ -32,7 +32,7 @@ void print_temperature(float *m, int N, int M);
 // ---------- MEASUREMENT UTILITIES ----------
 #define FOLDER "output"
 #define FILENAME "measurements.csv"
-#define TYPE "par_block_slice_modaccess"
+#define TYPE "par_block_slice_modaccess_avoid_svect"
 void data_to_csv(int problem_size, double time, int num_ranks);
 
 // ---------- SIMULATION CODE ----------
@@ -115,8 +115,8 @@ int main(int argc, char **argv) {
     }
 
     // create send ghost vectors for the rank communication
-    Vector send_up_temps = create_vector(cols_per_rank);
-    Vector send_down_temps = create_vector(cols_per_rank);
+    // Vector send_up_temps = create_vector(cols_per_rank);
+    // Vector send_down_temps = create_vector(cols_per_rank);
     
     // create recv ghost vectors for the rank communication
     Vector recv_down_temps = create_vector(cols_per_rank);
@@ -126,12 +126,12 @@ int main(int argc, char **argv) {
     // for each time step ..
     for (int t = 0; t < T; t++) {
         // gather send ghost vector data for all sides (4 loops because it reduces cache misses)
-        for (int i = 0; i < cols_per_rank; i++){
-            send_up_temps[i] = A[calc_index(0, i, cols_per_rank)];
-        }
-        for (int i = 0; i < cols_per_rank; i++){
-            send_down_temps[i] = A[calc_index(rows_per_rank-1, i, cols_per_rank)];
-        }
+        // for (int i = 0; i < cols_per_rank; i++){
+        //     send_up_temps[i] = A[calc_index(0, i, cols_per_rank)];
+        // }
+        // for (int i = 0; i < cols_per_rank; i++){
+        //     send_down_temps[i] = A[calc_index(rows_per_rank-1, i, cols_per_rank)];
+        // }
         
         // determine neighbors
         int up    = (my_rank-ranks_per_row >= 0) ? my_rank-ranks_per_row : MPI_PROC_NULL;
@@ -139,16 +139,16 @@ int main(int argc, char **argv) {
 
         // send and receive up and down ghost cells
         if (submatrix_row_id % 2) {
-            MPI_Send(send_up_temps, cols_per_rank, MPI_FLOAT, up, MPI_TAG, MPI_COMM_WORLD);
-            MPI_Send(send_down_temps, cols_per_rank, MPI_FLOAT, down, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(&A[0], cols_per_rank, MPI_FLOAT, up, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(&A[rows_per_rank-1], cols_per_rank, MPI_FLOAT, down, MPI_TAG, MPI_COMM_WORLD);
             MPI_Recv(recv_down_temps, cols_per_rank, MPI_FLOAT, down, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Recv(recv_up_temps, cols_per_rank, MPI_FLOAT, up, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         }
         else {
             MPI_Recv(recv_down_temps, cols_per_rank, MPI_FLOAT, down, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             MPI_Recv(recv_up_temps, cols_per_rank, MPI_FLOAT, up, MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            MPI_Send(send_up_temps, cols_per_rank, MPI_FLOAT, up, MPI_TAG, MPI_COMM_WORLD);
-            MPI_Send(send_down_temps, cols_per_rank, MPI_FLOAT, down, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(&A[0], cols_per_rank, MPI_FLOAT, up, MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(&A[rows_per_rank-1], cols_per_rank, MPI_FLOAT, down, MPI_TAG, MPI_COMM_WORLD);
         }
     
         // .. we propagate the temperature
@@ -196,8 +196,8 @@ int main(int argc, char **argv) {
 
     // cleanup resources of computation
     release_matrix(B);
-    release_vector(send_up_temps);
-    release_vector(send_down_temps);
+    // release_vector(send_up_temps);
+    // release_vector(send_down_temps);
 
     release_vector(recv_down_temps);
     release_vector(recv_up_temps);

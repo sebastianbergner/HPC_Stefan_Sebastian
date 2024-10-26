@@ -1,0 +1,13 @@
+\begin{table}[H]
+\tiny
+\centering
+\begin{tabular}{|l|r|r|r|r|r|r|r|}
+\hline
+Program & L1d load misses & L1d loads & LLC load misses & LLC loads & Time (s) & User time (s) & Sys time (s) \\ \hline
+2D\_seq\_debug 384 & 1,418,812,102 & 28,372,084,936 & 3,399 & 27,291,708 & 22.882091899 & 22.806702000 & 0.002974000 \\ \hline
+2D\_par\_blocking\_debug 384 & 261,226,191 & 8,665,614,974 & 84,869 & 16,154,820 & 7.556716632 & 7.374099000 & 0.038544000 \\ \hline
+2D\_par\_non\_blocking\_debug 384 & 275,399,148 & 8,702,055,510 & 85,964 & 18,602,539 & 6.374551468 & 6.190521000 & 0.043667000 \\ \hline
+\end{tabular}
+\caption{Perf measurement -O3}
+\label{table:performance_metrics}
+\end{table}
